@@ -1,0 +1,60 @@
+{
+  "schema_version": "1",
+  "project": {
+    "name": "phonemall",
+    "revision": "2f0ecb46cffc2f16e1d63ae26be49d6c89f94320"
+  },
+  "dataset": {
+    "path": "evals/datasets/shopping_queries.jsonl",
+    "include_tags": [],
+    "exclude_tags": []
+  },
+  "adapter": {
+    "type": "http",
+    "base_url": "${PHONEMALL_BASE_URL:-http://localhost:8080}",
+    "endpoint": "/api/merchant/ai/evaluate",
+    "method": "POST",
+    "timeout_seconds": 60,
+    "headers": {
+      "Authorization": "Bearer ${PHONEMALL_MERCHANT_TOKEN}"
+    }
+  },
+  "execution_policy": {
+    "min_completion_rate": 1.0,
+    "retries": 1,
+    "max_retryable_error_rate": 0.0
+  },
+  "metrics": [
+    {
+      "type": "recall_at_k",
+      "k": 5
+    },
+    {
+      "type": "mrr"
+    }
+  ],
+  "gates": [
+    {
+      "metric": "recall_at_5",
+      "min": 0.8,
+      "severity": "error"
+    }
+  ],
+  "baseline": {
+    "path": "evals/baselines/phonemall-main.json"
+  },
+  "report": {
+    "formats": ["json", "markdown"],
+    "output_dir": "evals/reports",
+    "include_inputs": true,
+    "include_answers": false,
+    "include_retrieved_content": false,
+    "include_claims": true
+  },
+  "run_budget": {
+    "max_cases": 20,
+    "max_duration_seconds": 600,
+    "max_estimated_cost": 5.0,
+    "currency": "CNY"
+  }
+}

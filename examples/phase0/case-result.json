@@ -1,0 +1,51 @@
+{
+  "schema_version": "1",
+  "case_id": "phone-camera-001",
+  "status": "completed",
+  "retrieved_items": [
+    {
+      "id": 1007,
+      "score": 0.91,
+      "rank": 1,
+      "attributes": {
+        "brand": "Xiaomi",
+        "price": 3999,
+        "sellable": true
+      }
+    }
+  ],
+  "eligible_items": [
+    {
+      "id": 1007,
+      "score": 0.91,
+      "rank": 1,
+      "attributes": {
+        "brand": "Xiaomi",
+        "price": 3999,
+        "sellable": true
+      }
+    }
+  ],
+  "recommended_ids": [],
+  "answer": null,
+  "claims": [],
+  "citations": [],
+  "usage": {
+    "total_latency_ms": 318,
+    "retrieval_latency_ms": 318,
+    "first_token_latency_ms": null,
+    "input_tokens": null,
+    "output_tokens": null,
+    "token_count_kind": "unavailable",
+    "estimated_cost": null,
+    "currency": null
+  },
+  "system": {
+    "adapter": "phonemall-http",
+    "revision": "2f0ecb46cffc2f16e1d63ae26be49d6c89f94320",
+    "config_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "retrieval_mode": "vector",
+    "index_ready": true
+  },
+  "error": null
+}

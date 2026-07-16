@@ -19,7 +19,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
+      - name: Install validation dependencies
+        run: python -m pip install "jsonschema>=4.23,<5"
       - name: Validate development plan
         run: python scripts/validate_plan.py
+      - name: Validate Phase 0 contracts
+        run: python scripts/validate_phase0.py
       - name: Check whitespace errors
         run: git diff --check HEAD^ HEAD
