@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Recorded merged PhoneMall Phase 1–2 and GroundedSeek Phase 3 implementation evidence.
+- Linked target CI runs, prereleases, and the remaining human-review and license blockers.
 - Added Phase 0 repository and GroundedSeek dataset audits.
 - Added the Phase 0 acceptance and license/data-governance records.
 - Added JSON Schema Draft 2020-12 contracts for dataset cases, configuration, normalized case
