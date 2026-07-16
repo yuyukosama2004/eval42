@@ -12,10 +12,11 @@ projects:
 ## Current status
 
 - Development plan: [v1.1](eval42-development-plan.md)
-- Implementation status: Phase 0 contracts drafted; Phase 1 may start
+- Implementation status: Phase 0 complete; target Phase 1–3 technical validation merged
 - First target: prove whether a real PhoneMall change improves or regresses retrieval quality
 - Second target: upgrade GroundedSeek's existing evaluation data into a deterministic Gold Set
 - Phase 0 acceptance record: [docs/phase-0/acceptance.md](docs/phase-0/acceptance.md)
+- Target implementation evidence: [docs/implementation-evidence.md](docs/implementation-evidence.md)
 - Versioned schemas: [schemas/README.md](schemas/README.md)
 
 The plan intentionally prioritizes deterministic retrieval, constraint, fact, evidence, and
