@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/yuyukosama2004/eval42/schemas/v1/dataset-case.schema.json",
+  "title": "Eval42 Dataset Case v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "input", "expected", "tags", "metadata"],
+  "properties": {
+    "schema_version": {
+      "const": "1"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "input": {
+      "type": "object",
+      "minProperties": 1
+    },
+    "expected": {
+      "type": "object",
+      "properties": {
+        "relevant_ids": {
+          "type": "array",
+          "items": {
+            "type": ["string", "integer"]
+          },
+          "uniqueItems": true
+        },
+        "forbidden_ids": {
+          "type": "array",
+          "items": {
+            "type": ["string", "integer"]
+          },
+          "uniqueItems": true
+        },
+        "constraints": {
+          "type": "object"
+        },
+        "facts": {
+          "type": "object"
+        },
+        "expected_empty_result": {
+          "type": "boolean"
+        },
+        "accepted_domains": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "required_evidence_matchers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["type", "value"],
+            "properties": {
+              "type": {
+                "enum": ["contains", "regex"]
+              },
+              "value": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "expected_outcome": {
+          "enum": ["completed", "insufficient_evidence", "report_conflict", "blocked"]
+        }
+      }
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["dataset_version", "reviewed_by"],
+      "properties": {
+        "dataset_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reviewed_by": {
+          "type": "string",
+          "minLength": 1
+        },
+        "snapshot_hash": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

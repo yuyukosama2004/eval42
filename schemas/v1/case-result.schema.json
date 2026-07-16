@@ -1,0 +1,197 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/yuyukosama2004/eval42/schemas/v1/case-result.schema.json",
+  "title": "Eval42 Case Result v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "case_id",
+    "status",
+    "retrieved_items",
+    "eligible_items",
+    "recommended_ids",
+    "claims",
+    "citations",
+    "usage",
+    "system",
+    "error"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1"
+    },
+    "case_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": ["completed", "error"]
+    },
+    "retrieved_items": {
+      "$ref": "#/$defs/items"
+    },
+    "eligible_items": {
+      "$ref": "#/$defs/items"
+    },
+    "recommended_ids": {
+      "type": "array",
+      "items": {
+        "type": ["string", "integer"]
+      },
+      "uniqueItems": true
+    },
+    "answer": {
+      "type": ["string", "null"]
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "citations": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "usage": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["total_latency_ms", "token_count_kind"],
+      "properties": {
+        "total_latency_ms": {
+          "type": "number",
+          "minimum": 0
+        },
+        "retrieval_latency_ms": {
+          "type": ["number", "null"],
+          "minimum": 0
+        },
+        "first_token_latency_ms": {
+          "type": ["number", "null"],
+          "minimum": 0
+        },
+        "input_tokens": {
+          "type": ["integer", "null"],
+          "minimum": 0
+        },
+        "output_tokens": {
+          "type": ["integer", "null"],
+          "minimum": 0
+        },
+        "token_count_kind": {
+          "enum": ["actual", "estimated", "unavailable"]
+        },
+        "estimated_cost": {
+          "type": ["number", "null"],
+          "minimum": 0
+        },
+        "currency": {
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "system": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["adapter", "revision", "config_hash"],
+      "properties": {
+        "adapter": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "type": "string",
+          "minLength": 1
+        },
+        "config_hash": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "retrieval_mode": {
+          "type": ["string", "null"]
+        },
+        "index_ready": {
+          "type": ["boolean", "null"]
+        }
+      }
+    },
+    "error": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "message", "retryable"],
+          "properties": {
+            "type": {
+              "type": "string",
+              "minLength": 1
+            },
+            "message": {
+              "type": "string",
+              "minLength": 1
+            },
+            "retryable": {
+              "type": "boolean"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "completed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "error": {
+            "type": "null"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "error": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "rank", "attributes"],
+        "properties": {
+          "id": {
+            "type": ["string", "integer"]
+          },
+          "score": {
+            "type": ["number", "null"]
+          },
+          "rank": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "attributes": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  }
+}

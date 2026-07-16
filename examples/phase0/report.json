@@ -1,0 +1,35 @@
+{
+  "schema_version": "1",
+  "run": {
+    "project_name": "phonemall",
+    "revision": "2f0ecb46cffc2f16e1d63ae26be49d6c89f94320",
+    "dataset_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "started_at": "2026-07-16T10:00:00Z",
+    "completed_at": "2026-07-16T10:00:01Z"
+  },
+  "summary": {
+    "gate": "pass",
+    "total_cases": 1,
+    "completed_cases": 1,
+    "completion_rate": 1.0,
+    "metrics": {
+      "recall_at_5": 1.0
+    }
+  },
+  "gates": [
+    {
+      "metric": "recall_at_5",
+      "status": "pass",
+      "severity": "error"
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "phone-camera-001",
+      "status": "completed",
+      "metrics": {
+        "recall_at_5": 1.0
+      }
+    }
+  ]
+}

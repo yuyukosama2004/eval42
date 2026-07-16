@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/yuyukosama2004/eval42/schemas/v1/report.schema.json",
+  "title": "Eval42 Report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "run", "summary", "gates", "cases"],
+  "properties": {
+    "schema_version": {
+      "const": "1"
+    },
+    "run": {
+      "type": "object",
+      "required": ["project_name", "revision", "dataset_hash", "started_at"],
+      "properties": {
+        "project_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dataset_hash": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "started_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "completed_at": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["gate", "total_cases", "completed_cases", "completion_rate"],
+      "properties": {
+        "gate": {
+          "enum": ["pass", "pass_with_warnings", "fail", "untrusted"]
+        },
+        "total_cases": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "completed_cases": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "completion_rate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "metrics": {
+          "type": "object"
+        }
+      }
+    },
+    "gates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["metric", "status", "severity"],
+        "properties": {
+          "metric": {
+            "type": "string"
+          },
+          "status": {
+            "enum": ["pass", "warn", "fail", "not_applicable"]
+          },
+          "severity": {
+            "enum": ["error", "warning", "info"]
+          }
+        }
+      }
+    },
+    "cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["case_id", "status"],
+        "properties": {
+          "case_id": {
+            "type": "string"
+          },
+          "status": {
+            "enum": ["completed", "error"]
+          },
+          "metrics": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  }
+}

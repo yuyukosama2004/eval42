@@ -1,0 +1,27 @@
+{
+  "schema_version": "1",
+  "id": "phone-camera-001",
+  "input": {
+    "query": "预算 4000 元，重视拍照和续航，不要苹果"
+  },
+  "expected": {
+    "relevant_ids": [1007, 1015],
+    "forbidden_ids": [1001, 1002, 1003],
+    "constraints": {
+      "max_price": 4000,
+      "excluded_brands": ["Apple"],
+      "must_be_sellable": true
+    },
+    "facts": {
+      "1007.price": 3999
+    },
+    "expected_empty_result": false
+  },
+  "tags": ["budget", "camera", "battery"],
+  "metadata": {
+    "dataset_version": "phase0-example",
+    "reviewed_by": "human",
+    "snapshot_hash": "sha256:580e00589b5e018f79cb5da03b24f9bf6b7482ad68c7aebee4f7a992eb37c196",
+    "notes": "Example only; final relevant IDs require Phase 0 human review."
+  }
+}

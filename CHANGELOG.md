@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Added Phase 0 repository and GroundedSeek dataset audits.
+- Added the Phase 0 acceptance and license/data-governance records.
+- Added JSON Schema Draft 2020-12 contracts for dataset cases, configuration, normalized case
+  results, reports, and baselines.
+- Added executable example fixtures and CI validation for all Phase 0 contracts.
+
 ## plan-v1.1.0 - 2026-07-16
 
 - Aligned the plan with the current PhoneMall and GroundedSeek implementations.
