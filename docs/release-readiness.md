@@ -14,7 +14,7 @@ Last audited: 2026-07-18 (Asia/Shanghai)
 | Baselines and dataset comparability | baseline round-trip/change tests | Passed |
 | Stable gate exit behavior | quality and untrusted runner tests | Passed |
 | JSON and Markdown reports | schema validation and reporter tests | Passed |
-| Ruff, strict typing, coverage | Ruff, strict mypy, 33 tests, 89.7% total coverage | Passed locally |
+| Ruff, strict typing, coverage | Ruff, strict mypy, 35 tests, 89.73% total coverage | Passed locally and remotely |
 | Package artifacts | sdist and wheel built with Hatch | Passed locally |
 | Bundled Schema consistency | wheel inspection and release validator | Passed |
 | PyPI name availability | official PyPI/TestPyPI simple endpoints returned 404 | Available when checked |
@@ -22,16 +22,16 @@ Last audited: 2026-07-18 (Asia/Shanghai)
 Artifact hashes from the initial local package build are build evidence only; the GitHub Release
 workflow rebuilds artifacts from the tagged commit and publishes those authoritative files.
 
-## Requires remote evidence
+## Remote evidence
 
-- Linux Python 3.11, 3.12, 3.14 jobs.
-- Windows Python 3.13 job.
-- macOS Python 3.13 job.
-- Clean build/install job from the pull-request commit.
-- Tag-triggered GitHub Release and uploaded sdist/wheel.
-
-These are supplied by `.github/workflows/ci.yml` and `.github/workflows/release.yml`; they are not
-claimed complete until the corresponding GitHub Actions runs succeed.
+| Requirement | Evidence | Status |
+|---|---|---|
+| Linux Python 3.11, 3.12, 3.14 | [main CI run 29642996648](https://github.com/yuyukosama2004/eval42/actions/runs/29642996648) | Passed |
+| Windows Python 3.13 | [main CI run 29642996648](https://github.com/yuyukosama2004/eval42/actions/runs/29642996648) | Passed |
+| macOS Python 3.13 | [main CI run 29642996648](https://github.com/yuyukosama2004/eval42/actions/runs/29642996648) | Passed |
+| Quality, contracts, and clean build/install | [main CI run 29642996648](https://github.com/yuyukosama2004/eval42/actions/runs/29642996648) | Passed |
+| Development-plan validation | [Documentation run 29642996665](https://github.com/yuyukosama2004/eval42/actions/runs/29642996665) | Passed |
+| Tag-triggered GitHub prerelease with sdist/wheel | Not run until the owner selects a license | Pending |
 
 ## External acceptance still open
 
