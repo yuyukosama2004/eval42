@@ -1,0 +1,51 @@
+schema_version: "1"
+project:
+  name: groundedseek
+  revision: replace-with-target-git-sha
+dataset:
+  path: dataset.jsonl
+adapter:
+  type: http
+  base_url: ${GROUNDEDSEEK_BASE_URL:-http://localhost:8000}
+  endpoint: /api/v1/runs
+  method: POST
+  request:
+    json:
+      query: $.input.query
+      allowed_domains: $.input.allowed_domains
+  async_run:
+    id_path: $.run_id
+    status_endpoint: /api/v1/runs/{run_id}
+    status_path: $.status
+    success_values: [completed]
+    failure_values: [failed, cancelled]
+    result_endpoint: /api/v1/runs/{run_id}/result
+    poll_interval_seconds: 1
+    max_wait_seconds: 300
+  response_mapping:
+    retrieved_items: $.sources
+    answer: $.answer
+    claims: $.claims
+    citations: $.citations
+    usage: $.execution_summary
+    outcome: $.outcome
+    system: $.provenance
+execution_policy:
+  min_completion_rate: 1.0
+  retries: 1
+  max_retryable_error_rate: 0.0
+metrics:
+  - type: source_quality
+  - type: evidence_recall
+  - type: citation_validity
+  - type: claim_coverage
+  - type: expected_outcome
+  - type: conflict_preservation
+gates:
+  - metric: citation_validity
+    min: 1
+  - metric: evidence_recall
+    min: 0.8
+report:
+  formats: [json, markdown]
+  output_dir: reports

@@ -1,0 +1,93 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "eval42"
+version = "0.1.0a1"
+description = "A CI-first evaluation harness for verifiable AI applications"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+  { name = "yuyukosama2004" },
+]
+keywords = ["evaluation", "ai", "rag", "testing", "ci"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Software Development :: Testing",
+]
+dependencies = [
+  "jsonschema>=4.23,<5",
+  "PyYAML>=6.0.2,<7",
+]
+
+[project.optional-dependencies]
+dev = [
+  "build>=1.2.2,<2",
+  "mypy>=1.15,<2",
+  "pytest>=8.3,<9",
+  "pytest-cov>=6,<8",
+  "ruff>=0.11,<1",
+  "types-jsonschema>=4.23,<5",
+  "types-PyYAML>=6.0.12,<7",
+]
+
+[project.scripts]
+eval42 = "eval42.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/yuyukosama2004/eval42"
+Repository = "https://github.com/yuyukosama2004/eval42"
+Issues = "https://github.com/yuyukosama2004/eval42/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/eval42"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"schemas" = "eval42/_schemas"
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/src",
+  "/schemas",
+  "/examples",
+  "/docs",
+  "/tests",
+  "/README.md",
+  "/CHANGELOG.md",
+  "/CONTRIBUTING.md",
+  "/SECURITY.md",
+  "/pyproject.toml",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+packages = ["eval42"]
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-markers"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["eval42"]
+
+[tool.coverage.report]
+fail_under = 85
+show_missing = true
+skip_covered = true

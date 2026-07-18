@@ -90,6 +90,12 @@
         },
         "currency": {
           "type": ["string", "null"]
+        },
+        "price_version": {
+          "type": ["string", "null"]
+        },
+        "cost_method": {
+          "type": ["string", "null"]
         }
       }
     },

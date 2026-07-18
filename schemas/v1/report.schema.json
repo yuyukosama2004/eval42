@@ -32,6 +32,14 @@
         "completed_at": {
           "type": ["string", "null"],
           "format": "date-time"
+        },
+        "eval42_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "metric_version": {
+          "type": "string",
+          "minLength": 1
         }
       }
     },
@@ -57,6 +65,63 @@
         },
         "metrics": {
           "type": "object"
+        },
+        "metric_applicability": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["applicable_cases", "not_applicable_cases"],
+            "properties": {
+              "applicable_cases": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "not_applicable_cases": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        },
+        "cost_provenance": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "required": ["method", "currency", "price_version", "models"],
+              "properties": {
+                "method": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "currency": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "price_version": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "models": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "input_cost_per_million": {
+                  "type": ["number", "null"],
+                  "minimum": 0
+                },
+                "output_cost_per_million": {
+                  "type": ["number", "null"],
+                  "minimum": 0
+                }
+              }
+            }
+          ]
         }
       }
     },
@@ -91,6 +156,9 @@
             "enum": ["completed", "error"]
           },
           "metrics": {
+            "type": "object"
+          },
+          "diagnostics": {
             "type": "object"
           }
         }

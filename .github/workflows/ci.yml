@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "codex/**"]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Quality and contracts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: python -m pip install -e ".[dev]"
+      - run: ruff format --check src tests scripts/validate_release.py
+      - run: ruff check src tests scripts/validate_release.py
+      - run: mypy src
+      - run: pytest --cov=eval42 --cov-report=term --cov-report=xml
+      - run: python scripts/validate_plan.py
+      - run: python scripts/validate_phase0.py
+      - run: python scripts/validate_release.py
+
+  compatibility:
+    name: ${{ matrix.os }} / Python ${{ matrix.python }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            python: "3.11"
+          - os: ubuntu-latest
+            python: "3.12"
+          - os: ubuntu-latest
+            python: "3.14"
+          - os: windows-latest
+            python: "3.13"
+          - os: macos-latest
+            python: "3.13"
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - run: python -m pip install -e ".[dev]"
+      - run: pytest
+      - run: eval42 run examples/mock-shopping/eval.yml
+      - run: eval42 run examples/mock-research/eval.yml
+
+  build:
+    name: Build and clean install
+    needs: [quality, compatibility]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: python -m pip install build
+      - run: python -m build
+      - run: python -m venv /tmp/eval42-smoke
+      - run: /tmp/eval42-smoke/bin/python -m pip install dist/*.whl
+      - run: /tmp/eval42-smoke/bin/eval42 version
+      - run: /tmp/eval42-smoke/bin/eval42 run examples/mock-shopping/eval.yml
+      - uses: actions/upload-artifact@v4
+        with:
+          name: eval42-distributions
+          path: dist/*
+          if-no-files-found: error
