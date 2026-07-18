@@ -52,7 +52,7 @@ jobs:
           --dist dist
           --tag "${{ inputs.tag }}"
           --target "${{ inputs.index }}"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: eval42-distributions
           path: dist/*
@@ -68,7 +68,7 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: eval42-distributions
           path: dist
@@ -86,7 +86,7 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: eval42-distributions
           path: dist
