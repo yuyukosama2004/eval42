@@ -2,9 +2,9 @@
 
 > 项目定位：面向可验证 AI 应用的轻量、CI 优先评测工具  
 > 英文定位：A lightweight, CI-first evaluation harness for verifiable AI applications.  
-> 计划版本：v1.1
+> 计划版本：v1.2
 > 编写日期：2026-07-16  
-> 修订日期：2026-07-16
+> 修订日期：2026-07-18
 > 目标读者：后续开发窗口、项目维护者、代码审查者  
 
 ---
@@ -142,6 +142,26 @@ Eval42 应能够：
 - 最终没有任何项目真正使用。
 
 因此，Eval42 仓库可以先承载计划、协议、Issue、PR、Tag 和 Release，但通用代码必须由至少两个真实项目共同需求推动后再稳定下来。
+
+### 4.2 v1.2 执行顺序调整
+
+PhoneMall 和 GroundedSeek 的技术接入已经分别完成并合并，但人工 Gold 审核、真实 Nightly
+和跨迭代使用证据仍未完成。随后，项目所有者明确要求 Eval42 本身必须成为可安装、可交互的
+通用测试工具，而不能只保留协议。因此 v1.2 记录以下执行决策：
+
+- 允许在人工 Gold 审核完成前，以公开协议和两个目标项目已验证的 HTTP 接口为输入，
+  clean-room 实现独立 Core、CLI、Mock 示例和 CI。
+- 不从 PhoneMall 或 GroundedSeek 复制源码；目标项目继续保留各自实现和许可边界。
+- 提前实现不等于完成双项目真实验证，不得把候选标注称为人工审核 Gold Set，也不得声称
+  Nightly 或真实基线已经验证。
+- v0.1.0 稳定开源发布门禁不变：Eval42 LICENSE、人工数据审核、真实使用证据以及发布安装
+  验证仍须逐项满足。
+- 在上述门禁完成前，只能把当前包称为 standalone alpha；GitHub prerelease 也必须明确
+  标注其非稳定性质。
+
+此调整改变 Phase 4–6 的实施顺序，不改变质量、数据治理、许可或最终验收标准。对应实现
+与差异证据记录在 `docs/implementation-evidence.md` 和
+`docs/compatibility-decisions.md`。
 
 ---
 

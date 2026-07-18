@@ -27,6 +27,14 @@
   results, reports, and baselines.
 - Added executable example fixtures and CI validation for all Phase 0 contracts.
 
+## plan-v1.2.0 - 2026-07-18
+
+- Recorded the owner-directed decision to build the standalone clean-room alpha before human Gold
+  review is complete.
+- Kept license, target review, real-usage, nightly, and stable-release acceptance gates unchanged.
+- Reconciled the implementation evidence with Eval42 PR #5 without claiming target source-code
+  migration or reviewed target quality.
+
 ## plan-v1.1.0 - 2026-07-16
 
 - Aligned the plan with the current PhoneMall and GroundedSeek implementations.
