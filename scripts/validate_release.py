@@ -95,6 +95,17 @@ def validate_security_gate() -> None:
         assert command in workflow, f"dependency audit is missing from {name}"
 
 
+def validate_trusted_publishing_workflow() -> None:
+    workflow = (ROOT / ".github" / "workflows" / "publish.yml").read_text(encoding="utf-8")
+    assert workflow.count("id-token: write") == 2
+    assert "environment: testpypi" in workflow
+    assert "environment: pypi" in workflow
+    assert "pypa/gh-action-pypi-publish@release/v1" in workflow
+    assert "repository-url: https://test.pypi.org/legacy/" in workflow
+    assert "gh release download" in workflow
+    assert "secrets." not in workflow, "package publication must not use long-lived secrets"
+
+
 def main() -> None:
     validate_version()
     validate_license()
@@ -103,6 +114,7 @@ def main() -> None:
     validate_offline_examples()
     validate_no_private_paths()
     validate_security_gate()
+    validate_trusted_publishing_workflow()
     print("release invariants passed")
 
 

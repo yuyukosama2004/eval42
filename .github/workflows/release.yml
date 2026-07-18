@@ -23,7 +23,7 @@ jobs:
         env:
           PYTHONUTF8: "1"
         run: python -m pip_audit --skip-editable --progress-spinner off
-      - run: ruff check src tests scripts/validate_release.py
+      - run: ruff check src tests scripts/validate_release.py scripts/validate_publish.py
       - run: mypy src
       - run: pytest --cov=eval42
       - run: python scripts/validate_phase0.py
