@@ -10,13 +10,15 @@ ROOT = Path(__file__).resolve().parents[1]
 PLAN = ROOT / "eval42-development-plan.md"
 
 REQUIRED_TEXT = (
-    "> 计划版本：v1.1",
+    "> 计划版本：v1.2",
     "a7f8bb216367a3ba7476e2591d3b8ce3bfad6719",
     "d2f9b11ef8d73f1c1f92fe966c5d2c18e21dcf47",
     "POST /api/merchant/ai/evaluate",
     "POST /api/v1/runs",
     "现有 50 条",
     "Command Adapter 不进入 v0.1.0",
+    "### 4.2 v1.2 执行顺序调整",
+    "clean-room 实现独立 Core",
     "case_hash",
     "token_count_kind",
     "## Phase 3：GroundedSeek HTTP 接入与 Gold Set",
@@ -47,10 +49,7 @@ def main() -> None:
     if fence_count % 2:
         errors.append(f"unbalanced fenced code blocks: {fence_count} markers")
 
-    phase_numbers = [
-        int(number)
-        for number in re.findall(r"(?m)^## Phase ([0-7])：", content)
-    ]
+    phase_numbers = [int(number) for number in re.findall(r"(?m)^## Phase ([0-7])：", content)]
     if phase_numbers != list(range(8)):
         errors.append(f"unexpected phase sequence: {phase_numbers}")
 

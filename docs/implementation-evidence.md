@@ -1,6 +1,6 @@
 # Target Implementation Evidence
 
-Record date: 2026-07-16
+Record date: 2026-07-18
 
 This document records what has actually been implemented and verified in the target projects
 after the Phase 0 contracts were frozen. It is an implementation milestone record, not a claim
@@ -14,7 +14,8 @@ that candidate labels have completed human review or that live nightly evaluatio
 | Phase 1 PhoneMall retrieval loop | Implemented and merged | 20 candidate labels require owner review |
 | Phase 2 baselines and CI gates | Implemented and merged | Live baseline, deployment, and secrets are not configured |
 | Phase 3 GroundedSeek integration | Implemented and merged | 15 candidate labels require owner review |
-| Phase 4 Core boundary confirmation | Not started | Requires real usage history and reviewed target data |
+| Phase 4 Core boundary confirmation | Technical boundary captured in a clean-room alpha | Real usage history and reviewed target data remain open |
+| Phase 6 standalone package | Implemented and merged in Eval42 PR [#5](https://github.com/yuyukosama2004/eval42/pull/5) | LICENSE and stable-release gates remain open |
 
 ## PhoneMall evidence
 
@@ -78,8 +79,10 @@ Open governance:
   authorization to migrate code between repositories.
 - Neither target nightly workflow is enabled. Each requires an explicitly configured protected
   service and repository settings or secrets.
-- Phase 4 must not begin by copying the project-local implementations into Eval42. It begins only
-  after the target projects provide enough real usage evidence to confirm the shared boundary.
+- Plan v1.2 permits the standalone clean-room alpha before human Gold review because the owner
+  explicitly required an installable general-purpose tool. No target source code was copied.
+- That sequencing decision does not satisfy the original real-usage acceptance boundary. The
+  standalone implementation must not be treated as proof of reviewed target quality.
 
 ## Next evidence required
 
