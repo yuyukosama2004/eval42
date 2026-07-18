@@ -80,7 +80,7 @@ jobs:
       - run: /tmp/eval42-smoke/bin/python -m pip install dist/*.whl
       - run: /tmp/eval42-smoke/bin/eval42 version
       - run: /tmp/eval42-smoke/bin/eval42 run examples/mock-shopping/eval.yml
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: eval42-distributions
           path: dist/*
