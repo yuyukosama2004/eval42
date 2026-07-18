@@ -39,6 +39,12 @@ def test_dataset_errors(tmp_path: Path) -> None:
         load_dataset(ROOT / "examples/mock-shopping/dataset.jsonl", include_tags=["missing"])
     with pytest.raises(DatasetError, match="not found"):
         load_dataset(ROOT / "examples/mock-shopping/dataset.jsonl", case_ids=["missing"])
+    case["id"] = "bad-regex"
+    case["expected"]["required_evidence_matchers"] = [{"type": "regex", "value": "[unterminated"}]
+    invalid_regex = tmp_path / "invalid-regex.jsonl"
+    invalid_regex.write_text(json.dumps(case), encoding="utf-8")
+    with pytest.raises(DatasetError, match="invalid evidence regex"):
+        load_dataset(invalid_regex)
 
 
 def test_mapping_paths_and_optional() -> None:

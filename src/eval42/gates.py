@@ -115,7 +115,11 @@ def gate_summary(
     values = list(results)
     if untrusted:
         return "untrusted", UNTRUSTED
-    if any(result.status == "fail" for result in values):
+    if any(
+        result.status == "fail"
+        or (result.status == "not_applicable" and result.severity == "error")
+        for result in values
+    ):
         return "fail", QUALITY_FAILURE
     if any(result.status == "warn" for result in values):
         return "pass_with_warnings", PASS

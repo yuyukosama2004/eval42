@@ -57,6 +57,23 @@
         },
         "metrics": {
           "type": "object"
+        },
+        "metric_applicability": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["applicable_cases", "not_applicable_cases"],
+            "properties": {
+              "applicable_cases": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "not_applicable_cases": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
         }
       }
     },
@@ -91,6 +108,9 @@
             "enum": ["completed", "error"]
           },
           "metrics": {
+            "type": "object"
+          },
+          "diagnostics": {
             "type": "object"
           }
         }

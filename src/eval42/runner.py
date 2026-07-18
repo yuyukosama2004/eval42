@@ -17,7 +17,13 @@ from eval42.config import LoadedConfig, config_path
 from eval42.errors import AdapterError, ConfigError
 from eval42.gates import evaluate_gates, gate_summary
 from eval42.loader import dataset_hash, load_dataset
-from eval42.metrics import MetricRegistry, aggregate_metrics, default_registry
+from eval42.metrics import (
+    MetricRegistry,
+    aggregate_metrics,
+    case_diagnostics,
+    default_registry,
+    metric_applicability,
+)
 from eval42.models import CaseResult, EvalCase, JsonObject
 from eval42.reporters import write_reports
 from eval42.util import resolve_path, sha256_value
@@ -111,6 +117,9 @@ def run_evaluation(
     completed = sum(case["status"] == "completed" for case in case_reports)
     completion_rate = completed / len(case_reports)
     aggregate = aggregate_metrics(case["metrics"] for case in case_reports)
+    applicability = metric_applicability(
+        case["metrics"] for case in case_reports if case["status"] == "completed"
+    )
     baseline_metrics = (
         _baseline_metrics(config) if compare_baseline and run_options.apply_gates else None
     )
@@ -150,6 +159,7 @@ def run_evaluation(
             "completed_cases": completed,
             "completion_rate": completion_rate,
             "metrics": aggregate,
+            "metric_applicability": applicability,
             "retryable_error_rate": retryable_errors / len(case_reports),
             "estimated_cost": total_cost if total_cost else None,
             "cost_kind": _cost_kind(case_reports),
@@ -257,6 +267,7 @@ def _case_report(
         "usage": result.usage,
         "system": result.system,
         "error": result.error,
+        "diagnostics": case_diagnostics(case, result),
     }
     if report_config.get("include_inputs", True):
         report["input"] = case.input
@@ -264,6 +275,9 @@ def _case_report(
         report["answer"] = result.answer
     if report_config.get("include_claims", True):
         report["claims"] = result.claims
+    else:
+        report["diagnostics"].pop("incorrect_facts", None)
+        report["diagnostics"].pop("missing_facts", None)
     if report_config.get("include_retrieved_content", False):
         report["retrieved_items"] = result.retrieved_items
     return report

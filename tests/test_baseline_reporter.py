@@ -57,5 +57,6 @@ def test_report_round_trip_and_markdown(tmp_path: Path) -> None:
     markdown = render_markdown(report)
     assert "## Metrics" in markdown
     assert "Execution errors" in markdown
+    assert "Case diagnostics" in markdown
     with pytest.raises(ReportError, match="unsupported"):
         write_reports(report, tmp_path, ["html"])

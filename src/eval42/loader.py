@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
@@ -59,6 +60,7 @@ def load_dataset(
             validate_instance(raw, "dataset-case")
         except DatasetError as exc:
             raise DatasetError(f"{dataset_path}:{line_number}: {exc}") from exc
+        _validate_regex_matchers(raw, dataset_path, line_number)
         case_id = str(raw["id"])
         if case_id in seen:
             raise DatasetError(f"duplicate case id {case_id!r} at line {line_number}")
@@ -91,3 +93,20 @@ def dataset_hash(path: str | Path) -> str:
         return sha256_bytes(Path(path).read_bytes())
     except OSError as exc:
         raise DatasetError(f"cannot hash dataset {path}: {exc}") from exc
+
+
+def _validate_regex_matchers(
+    raw: dict[str, Any],
+    dataset_path: Path,
+    line_number: int,
+) -> None:
+    matchers = raw.get("expected", {}).get("required_evidence_matchers", [])
+    for matcher in matchers:
+        if matcher.get("type") != "regex":
+            continue
+        try:
+            re.compile(matcher["value"])
+        except re.error as exc:
+            raise DatasetError(
+                f"invalid evidence regex at {dataset_path}:{line_number}: {exc}"
+            ) from exc

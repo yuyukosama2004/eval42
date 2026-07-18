@@ -65,7 +65,12 @@ def default_registry() -> MetricRegistry:
 
 def _ranked_ids(result: CaseResult) -> list[str | int]:
     items = sorted(result.retrieved_items, key=lambda item: int(item.get("rank", 0)))
-    return [item["id"] for item in items]
+    ranked: list[str | int] = []
+    for item in items:
+        identifier = item["id"]
+        if identifier not in ranked:
+            ranked.append(identifier)
+    return ranked
 
 
 def _recall_at_k(config: JsonObject, case: EvalCase, result: CaseResult) -> dict[str, float | None]:
@@ -101,8 +106,22 @@ def _forbidden_item_rate(
 ) -> dict[str, float | None]:
     forbidden = set(case.expected.get("forbidden_ids", []))
     if not result.recommended_ids:
-        return {"forbidden_item_rate": 0.0}
-    count = sum(identifier in forbidden for identifier in result.recommended_ids)
+        value = 0.0 if case.expected.get("expected_empty_result", False) else None
+        return {"forbidden_item_rate": value}
+    constraints = case.expected.get("constraints", {})
+    if not isinstance(constraints, dict):
+        constraints = {}
+    _validate_supported_constraints(constraints)
+    items = _items_by_id(result)
+    count = 0
+    for identifier in result.recommended_ids:
+        item = items.get(identifier)
+        if identifier in forbidden or item is None:
+            count += 1
+            continue
+        attributes = item.get("attributes", {})
+        if not isinstance(attributes, dict) or not _constraints_pass(attributes, constraints):
+            count += 1
     return {"forbidden_item_rate": count / len(result.recommended_ids)}
 
 
@@ -114,47 +133,92 @@ def _constraint_pass_rate(
     constraints = case.expected.get("constraints", {})
     if not isinstance(constraints, dict) or not constraints:
         return {"constraint_pass_rate": None}
-    items = {
-        item["id"]: item
-        for item in [*result.retrieved_items, *result.eligible_items]
-        if "id" in item
-    }
-    checks: list[bool] = []
+    _validate_supported_constraints(constraints)
+    items = _items_by_id(result)
+    if not result.recommended_ids:
+        value = 1.0 if case.expected.get("expected_empty_result", False) else None
+        return {"constraint_pass_rate": value}
+    if "max_items" in constraints and len(result.recommended_ids) > int(constraints["max_items"]):
+        return {"constraint_pass_rate": 0.0}
+    passed = 0
     for identifier in result.recommended_ids:
         item = items.get(identifier)
         if item is None:
-            checks.append(False)
             continue
         attributes = item.get("attributes", {})
-        if not isinstance(attributes, dict):
-            checks.append(False)
-            continue
-        checks.extend(_constraint_checks(attributes, constraints))
-    if not result.recommended_ids:
-        checks.append(bool(case.expected.get("expected_empty_result", False)))
-    return {"constraint_pass_rate": sum(checks) / len(checks) if checks else None}
+        if isinstance(attributes, dict) and _constraints_pass(attributes, constraints):
+            passed += 1
+    return {"constraint_pass_rate": passed / len(result.recommended_ids)}
+
+
+_SUPPORTED_CONSTRAINTS = {
+    "max_price",
+    "min_price",
+    "excluded_brands",
+    "allowed_brands",
+    "must_be_sellable",
+    "must_be_in_stock",
+    "allowed_categories",
+    "excluded_categories",
+    "max_items",
+}
+
+
+def _validate_supported_constraints(constraints: JsonObject) -> None:
+    unsupported = set(constraints).difference(_SUPPORTED_CONSTRAINTS)
+    if unsupported:
+        names = ", ".join(sorted(unsupported))
+        raise ConfigError(f"unsupported generic constraints: {names}")
 
 
 def _constraint_checks(attributes: JsonObject, constraints: JsonObject) -> list[bool]:
+    _validate_supported_constraints(constraints)
     checks: list[bool] = []
     if "max_price" in constraints:
-        checks.append(_number(attributes.get("price")) <= float(constraints["max_price"]))
+        price = _number(attributes.get("price"))
+        checks.append(price is not None and price <= float(constraints["max_price"]))
     if "min_price" in constraints:
-        checks.append(_number(attributes.get("price")) >= float(constraints["min_price"]))
+        price = _number(attributes.get("price"))
+        checks.append(price is not None and price >= float(constraints["min_price"]))
     if "excluded_brands" in constraints:
-        checks.append(attributes.get("brand") not in set(constraints["excluded_brands"]))
+        brand = attributes.get("brand")
+        checks.append(brand is not None and brand not in set(constraints["excluded_brands"]))
     if "allowed_brands" in constraints:
         checks.append(attributes.get("brand") in set(constraints["allowed_brands"]))
     if constraints.get("must_be_sellable"):
         checks.append(attributes.get("sellable") is True)
+    if constraints.get("must_be_in_stock"):
+        in_stock = attributes.get("in_stock")
+        stock = _number(attributes.get("stock"))
+        checks.append(in_stock is True or (stock is not None and stock > 0))
+    if "allowed_categories" in constraints:
+        checks.append(attributes.get("category") in set(constraints["allowed_categories"]))
+    if "excluded_categories" in constraints:
+        category = attributes.get("category")
+        checks.append(
+            category is not None and category not in set(constraints["excluded_categories"])
+        )
     return checks
 
 
-def _number(value: Any) -> float:
+def _constraints_pass(attributes: JsonObject, constraints: JsonObject) -> bool:
+    checks = _constraint_checks(attributes, constraints)
+    return all(checks)
+
+
+def _number(value: Any) -> float | None:
     try:
         return float(value)
     except (TypeError, ValueError):
-        return float("inf")
+        return None
+
+
+def _items_by_id(result: CaseResult) -> dict[str | int, JsonObject]:
+    return {
+        item["id"]: item
+        for item in [*result.retrieved_items, *result.eligible_items]
+        if "id" in item
+    }
 
 
 def _claim_key(claim: JsonObject) -> str | None:
@@ -173,9 +237,13 @@ def _fact_accuracy(
     facts = case.expected.get("facts", {})
     if not isinstance(facts, dict) or not facts:
         return {"fact_accuracy": None}
-    claims = {_claim_key(claim): claim.get("value") for claim in result.claims}
-    matches = sum(key in claims and claims[key] == value for key, value in facts.items())
-    return {"fact_accuracy": matches / len(facts)}
+    verifiable = [
+        claim for claim in result.claims if (key := _claim_key(claim)) is not None and key in facts
+    ]
+    if not verifiable:
+        return {"fact_accuracy": None}
+    matches = sum(facts[_claim_key(claim)] == claim.get("value") for claim in verifiable)
+    return {"fact_accuracy": matches / len(verifiable)}
 
 
 def _claim_coverage(
@@ -274,11 +342,12 @@ def _flatten_text(value: Any) -> str:
 
 def _citation_validity(
     _config: JsonObject,
-    _case: EvalCase,
+    case: EvalCase,
     result: CaseResult,
 ) -> dict[str, float | None]:
     if not result.citations:
-        return {"citation_validity": None}
+        required = bool(case.expected.get("required_evidence_matchers", []))
+        return {"citation_validity": 0.0 if required else None}
     source_ids = {item["id"] for item in result.retrieved_items}
     checks: list[bool] = []
     for citation in result.citations:
@@ -344,7 +413,82 @@ def aggregate_metrics(case_metrics: Iterable[dict[str, float | None]]) -> dict[s
             summary[f"average_{name}"] = sum(values) / len(values)
             summary[f"p50_{name}"] = percentile(values, 0.50) or 0.0
             summary[f"p95_{name}"] = percentile(values, 0.95) or 0.0
+            summary[f"max_{name}"] = max(values)
     if "estimated_cost" in grouped:
         summary["average_cost"] = sum(grouped["estimated_cost"]) / len(grouped["estimated_cost"])
         summary["total_cost"] = sum(grouped["estimated_cost"])
     return summary
+
+
+def metric_applicability(
+    case_metrics: Iterable[dict[str, float | None]],
+) -> dict[str, JsonObject]:
+    metrics = list(case_metrics)
+    names = sorted({name for values in metrics for name in values})
+    return {
+        name: {
+            "applicable_cases": sum(values.get(name) is not None for values in metrics),
+            "not_applicable_cases": sum(
+                name in values and values.get(name) is None for values in metrics
+            ),
+        }
+        for name in names
+    }
+
+
+def case_diagnostics(case: EvalCase, result: CaseResult) -> JsonObject:
+    if result.status != "completed":
+        return {}
+    ranked = _ranked_ids(result)
+    relevant = set(case.expected.get("relevant_ids", []))
+    items = _items_by_id(result)
+    constraints = case.expected.get("constraints", {})
+    if not isinstance(constraints, dict):
+        constraints = {}
+    generic_constraints = {
+        key: value for key, value in constraints.items() if key in _SUPPORTED_CONSTRAINTS
+    }
+    forbidden = set(case.expected.get("forbidden_ids", []))
+    forbidden_recommendations: list[JsonObject] = []
+    for identifier in result.recommended_ids:
+        reasons: list[str] = []
+        item = items.get(identifier)
+        if identifier in forbidden:
+            reasons.append("explicitly_forbidden")
+        if item is None:
+            reasons.append("not_in_retrieved_or_eligible_items")
+        elif generic_constraints:
+            attributes = item.get("attributes", {})
+            if not isinstance(attributes, dict) or not _constraints_pass(
+                attributes, generic_constraints
+            ):
+                reasons.append("constraint_violation")
+        if reasons:
+            forbidden_recommendations.append({"id": identifier, "reasons": reasons})
+
+    facts = case.expected.get("facts", {})
+    claims = {
+        key: claim.get("value") for claim in result.claims if (key := _claim_key(claim)) is not None
+    }
+    incorrect_facts = []
+    missing_facts = []
+    if isinstance(facts, dict):
+        incorrect_facts = [
+            {"key": key, "expected": expected, "observed": claims[key]}
+            for key, expected in facts.items()
+            if key in claims and claims[key] != expected
+        ]
+        missing_facts = [key for key in facts if key not in claims]
+    source_ids = {item["id"] for item in result.retrieved_items}
+    invalid_citations = [
+        citation.get("source_id", citation.get("id"))
+        for citation in result.citations
+        if citation.get("source_id", citation.get("id")) not in source_ids
+    ]
+    return {
+        "missing_relevant_ids": sorted(relevant.difference(ranked), key=str),
+        "forbidden_recommendations": forbidden_recommendations,
+        "incorrect_facts": incorrect_facts,
+        "missing_facts": missing_facts,
+        "invalid_citation_source_ids": invalid_citations,
+    }

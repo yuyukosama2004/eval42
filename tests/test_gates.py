@@ -40,3 +40,4 @@ def test_regression_gate_without_baseline_is_not_applicable() -> None:
         [{"score": 0.9}],
     )
     assert result.status == "not_applicable"
+    assert gate_summary([result], untrusted=False) == ("fail", QUALITY_FAILURE)

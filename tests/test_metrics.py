@@ -3,7 +3,13 @@ from __future__ import annotations
 import pytest
 
 from eval42.errors import ConfigError
-from eval42.metrics import MetricRegistry, aggregate_metrics, default_registry
+from eval42.metrics import (
+    MetricRegistry,
+    aggregate_metrics,
+    case_diagnostics,
+    default_registry,
+    metric_applicability,
+)
 from eval42.models import CaseResult, EvalCase
 
 
@@ -95,4 +101,60 @@ def test_aggregate_percentiles_and_cost() -> None:
     assert summary["score"] == 0.75
     assert summary["p50_total_latency_ms"] == 200
     assert summary["p95_total_latency_ms"] == pytest.approx(290)
+    assert summary["max_total_latency_ms"] == 300
     assert summary["total_cost"] == pytest.approx(0.3)
+    assert metric_applicability(
+        [{"score": 1.0, "optional": None}, {"score": 0.5, "optional": 1.0}]
+    ) == {
+        "optional": {"applicable_cases": 1, "not_applicable_cases": 1},
+        "score": {"applicable_cases": 2, "not_applicable_cases": 0},
+    }
+
+
+def test_metric_zero_denominators_and_item_level_constraints(
+    eval_case: EvalCase,
+    case_result: CaseResult,
+) -> None:
+    case_result.recommended_ids = [1, 2]
+    case_result.retrieved_items[1]["attributes"]["price"] = 5000
+    case_result.claims = []
+    values = default_registry().evaluate(
+        [
+            {"type": "forbidden_item_rate"},
+            {"type": "constraint_pass_rate"},
+            {"type": "fact_accuracy"},
+            {"type": "claim_coverage"},
+        ],
+        eval_case,
+        case_result,
+    )
+    assert values["forbidden_item_rate"] == 0.5
+    assert values["constraint_pass_rate"] == 0.5
+    assert values["fact_accuracy"] is None
+    assert values["claim_coverage"] == 0
+    diagnostics = case_diagnostics(eval_case, case_result)
+    assert diagnostics["forbidden_recommendations"] == [
+        {"id": 2, "reasons": ["constraint_violation"]}
+    ]
+    assert diagnostics["missing_facts"] == ["1.price"]
+
+
+def test_unexpected_empty_result_is_not_zero_forbidden_rate(
+    eval_case: EvalCase,
+    case_result: CaseResult,
+) -> None:
+    case_result.recommended_ids = []
+    values = default_registry().evaluate(
+        [
+            {"type": "forbidden_item_rate"},
+            {"type": "constraint_pass_rate"},
+            {"type": "unexpected_empty_result"},
+        ],
+        eval_case,
+        case_result,
+    )
+    assert values == {
+        "forbidden_item_rate": None,
+        "constraint_pass_rate": None,
+        "unexpected_empty_result": 1.0,
+    }

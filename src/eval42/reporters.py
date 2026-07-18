@@ -60,14 +60,22 @@ def render_markdown(report: dict[str, Any]) -> str:
         "",
         "## Metrics",
         "",
-        "| Metric | Value |",
-        "|---|---:|",
+        "| Metric | Value | Applicable | N/A |",
+        "|---|---:|---:|---:|",
     ]
     metrics = summary.get("metrics", {})
+    applicability = summary.get("metric_applicability", {})
     if metrics:
-        lines.extend(f"| `{name}` | {_format(value)} |" for name, value in sorted(metrics.items()))
+        lines.extend(
+            (
+                f"| `{name}` | {_format(value)} | "
+                f"{applicability.get(name, {}).get('applicable_cases', '—')} | "
+                f"{applicability.get(name, {}).get('not_applicable_cases', '—')} |"
+            )
+            for name, value in sorted(metrics.items())
+        )
     else:
-        lines.append("| _none_ | — |")
+        lines.append("| _none_ | — | — | — |")
     lines.extend(["", "## Gates", "", "| Metric | Status | Detail |", "|---|---|---|"])
     gates = report.get("gates", [])
     if gates:
@@ -85,6 +93,19 @@ def render_markdown(report: dict[str, Any]) -> str:
             for case in failures
         )
     else:
+        lines.append("None.")
+    lines.extend(["", "## Case diagnostics", ""])
+    diagnostics_found = False
+    for case in report["cases"]:
+        diagnostics = case.get("diagnostics", {})
+        actionable = {
+            name: value for name, value in diagnostics.items() if isinstance(value, list) and value
+        }
+        if not actionable:
+            continue
+        diagnostics_found = True
+        lines.append(f"- `{case['case_id']}`: `{json.dumps(actionable, ensure_ascii=False)}`")
+    if not diagnostics_found:
         lines.append("None.")
     lines.append("")
     return "\n".join(lines)

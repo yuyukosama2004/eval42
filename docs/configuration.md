@@ -49,6 +49,9 @@ average. Severity is `error`, `warning`, or `info`.
 Real network latency and model cost should remain warning/info gates in alpha because machine and
 provider changes affect comparability.
 
+An error-severity gate with no applicable observations is a quality failure, not a silent pass.
+Use warning/info severity for intentionally optional metrics.
+
 ## Privacy
 
 Reports include input by default and exclude full answers and retrieved content by default.
