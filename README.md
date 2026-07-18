@@ -33,6 +33,13 @@ eval42 run examples/mock-research/eval.yml
 Both examples are deterministic and make no network calls. Reports are written beside each
 example under `reports/`.
 
+The published alpha CLI can also be installed directly from its GitHub release asset:
+
+```bash
+pipx install https://github.com/yuyukosama2004/eval42/releases/download/v0.1.0a1/eval42-0.1.0a1-py3-none-any.whl
+eval42 version
+```
+
 ## Core commands
 
 ```text
@@ -94,7 +101,7 @@ import or execute arbitrary Python.
 - License: [MIT](LICENSE)
 - Local verification: Python 3.13, strict mypy, Ruff, and more than 85% test coverage
 - CI target: Python 3.11–3.14 on Linux, plus Windows and macOS
-- Release status: alpha; public package-index publication is not yet claimed
+- Release status: [v0.1.0a1 GitHub prerelease](https://github.com/yuyukosama2004/eval42/releases/tag/v0.1.0a1); public package-index publication is not yet claimed
 
 Eval42 source, schemas, documentation, and the repository-authored synthetic Mock fixtures are
 published under the MIT License. PhoneMall and GroundedSeek source code was not copied into this
