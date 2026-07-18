@@ -14,6 +14,9 @@
   dependencies.
 - Added strict typing, Ruff, multi-platform CI, package builds, and a test suite above 85%
   coverage.
+- Added metric implementation fingerprints and explicit cost provenance for model, currency,
+  price version, and calculation method.
+- Verified the standalone alpha on Linux, Windows, macOS, and Python 3.11 through 3.14.
 - Added Quick Start, Adapter, configuration, architecture, compatibility, security, and
   contribution documentation.
 - Recorded merged PhoneMall Phase 1–2 and GroundedSeek Phase 3 implementation evidence.
