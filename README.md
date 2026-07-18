@@ -45,6 +45,9 @@ eval42 report <report.json> [--output report.md]
 eval42 version
 ```
 
+`eval42 run --help` lists case/tag filters, limits, bounded concurrency, fixture-only mode,
+gate suppression, output/format overrides, and verbose case output.
+
 Stable exit codes:
 
 | Code | Meaning |

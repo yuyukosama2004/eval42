@@ -52,6 +52,24 @@ The example uses `adapter.type: http`, but `fixture_path` intercepts transport w
 The request mapper, response mapper, normalization, metrics, gates, and reporters are the same code
 used for a real endpoint.
 
+Useful run overrides:
+
+```bash
+eval42 run examples/mock-shopping/eval.yml \
+  --case camera-budget \
+  --tag shopping \
+  --limit 1 \
+  --concurrency 2 \
+  --mock \
+  --output ./reports \
+  --format json \
+  --verbose
+```
+
+`--case` and `--tag` may be repeated. `--mock` refuses to run unless the config has a
+`fixture_path`, preventing an accidental live call. `--no-gate` disables quality gates for
+diagnostics but does not convert incomplete execution into a trusted result.
+
 ## 3. Create and compare a baseline
 
 ```bash

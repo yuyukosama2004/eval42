@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import platform
 import time
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -29,6 +30,18 @@ class RunOutcome:
     report_paths: dict[str, Path]
 
 
+@dataclass(frozen=True)
+class RunOptions:
+    case_ids: tuple[str, ...] = ()
+    tags: tuple[str, ...] = ()
+    limit: int | None = None
+    concurrency: int = 1
+    apply_gates: bool = True
+    require_fixture: bool = False
+    output_dir: str | Path | None = None
+    formats: tuple[str, ...] | None = None
+
+
 def run_evaluation(
     config: LoadedConfig,
     *,
@@ -36,18 +49,31 @@ def run_evaluation(
     metrics: MetricRegistry | None = None,
     write_output: bool = True,
     compare_baseline: bool = True,
+    options: RunOptions | None = None,
 ) -> RunOutcome:
+    run_options = options or RunOptions()
+    if run_options.concurrency < 1:
+        raise ConfigError("concurrency must be at least 1")
+    if run_options.limit is not None and run_options.limit < 1:
+        raise ConfigError("limit must be at least 1")
     data = config.data
     dataset_config = data["dataset"]
     dataset_path = config_path(config, "dataset", "path")
     budget = data.get("run_budget", {})
+    configured_limit = budget.get("max_cases")
+    limit = run_options.limit
+    if isinstance(configured_limit, int):
+        limit = configured_limit if limit is None else min(limit, configured_limit)
     cases = load_dataset(
         dataset_path,
-        include_tags=dataset_config.get("include_tags", []),
+        include_tags=[*dataset_config.get("include_tags", []), *run_options.tags],
         exclude_tags=dataset_config.get("exclude_tags", []),
-        limit=budget.get("max_cases"),
+        case_ids=run_options.case_ids,
+        limit=limit,
     )
     target_adapter = adapter or _build_adapter(config)
+    if run_options.require_fixture and not getattr(target_adapter, "uses_fixtures", False):
+        raise ConfigError("--mock requires adapter.fixture_path")
     registry = metrics or default_registry()
     started = datetime.now(UTC)
     started_clock = time.monotonic()
@@ -55,34 +81,48 @@ def run_evaluation(
     retryable_errors = 0
     total_cost = 0.0
 
-    for case in cases:
+    for offset in range(0, len(cases), run_options.concurrency):
+        batch = cases[offset : offset + run_options.concurrency]
         budget_error = _budget_error(budget, started_clock, total_cost)
         if budget_error:
-            result = _error_result(case, target_adapter, config, budget_error)
+            results = [_error_result(case, target_adapter, config, budget_error) for case in batch]
         else:
-            result = _execute_with_retries(
-                target_adapter,
-                case,
-                int(data["execution_policy"]["retries"]),
-                config,
-            )
-        if result.error and result.error.get("retryable"):
-            retryable_errors += 1
-        estimated_cost = result.usage.get("estimated_cost")
-        if isinstance(estimated_cost, (int, float)):
-            total_cost += float(estimated_cost)
-        values = registry.evaluate(data["metrics"], case, result)
-        case_reports.append(_case_report(case, result, values, data["report"]))
+            with ThreadPoolExecutor(max_workers=run_options.concurrency) as executor:
+                results = list(
+                    executor.map(
+                        lambda case: _execute_with_retries(
+                            target_adapter,
+                            case,
+                            int(data["execution_policy"]["retries"]),
+                            config,
+                        ),
+                        batch,
+                    )
+                )
+        for case, result in zip(batch, results, strict=True):
+            if result.error and result.error.get("retryable"):
+                retryable_errors += 1
+            estimated_cost = result.usage.get("estimated_cost")
+            if isinstance(estimated_cost, (int, float)):
+                total_cost += float(estimated_cost)
+            values = registry.evaluate(data["metrics"], case, result)
+            case_reports.append(_case_report(case, result, values, data["report"]))
 
     completed = sum(case["status"] == "completed" for case in case_reports)
     completion_rate = completed / len(case_reports)
     aggregate = aggregate_metrics(case["metrics"] for case in case_reports)
-    baseline_metrics = _baseline_metrics(config) if compare_baseline else None
-    gate_results = evaluate_gates(
-        data["gates"],
-        aggregate,
-        (case["metrics"] for case in case_reports),
-        baseline_metrics,
+    baseline_metrics = (
+        _baseline_metrics(config) if compare_baseline and run_options.apply_gates else None
+    )
+    gate_results = (
+        evaluate_gates(
+            data["gates"],
+            aggregate,
+            (case["metrics"] for case in case_reports),
+            baseline_metrics,
+        )
+        if run_options.apply_gates
+        else []
     )
     policy = data["execution_policy"]
     untrusted = completion_rate < float(policy["min_completion_rate"]) or retryable_errors / len(
@@ -119,8 +159,10 @@ def run_evaluation(
     }
     paths: dict[str, Path] = {}
     if write_output:
-        output_dir = resolve_path(config.base_dir, data["report"]["output_dir"])
-        paths = write_reports(report, output_dir, data["report"]["formats"])
+        configured_output = run_options.output_dir or data["report"]["output_dir"]
+        output_dir = resolve_path(config.base_dir, str(configured_output))
+        formats = run_options.formats or tuple(data["report"]["formats"])
+        paths = write_reports(report, output_dir, formats)
     return RunOutcome(report=report, exit_code=exit_code, report_paths=paths)
 
 

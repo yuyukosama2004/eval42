@@ -20,7 +20,7 @@ from eval42.errors import Eval42Error
 from eval42.gates import UNTRUSTED
 from eval42.loader import load_dataset
 from eval42.reporters import load_report, render_markdown
-from eval42.runner import run_evaluation
+from eval42.runner import RunOptions, run_evaluation
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -31,6 +31,15 @@ def build_parser() -> argparse.ArgumentParser:
     subcommands = parser.add_subparsers(dest="command", required=True)
     run = subcommands.add_parser("run", help="run an evaluation")
     run.add_argument("config")
+    run.add_argument("--case", action="append", default=[], dest="case_ids")
+    run.add_argument("--tag", action="append", default=[], dest="tags")
+    run.add_argument("--limit", type=int)
+    run.add_argument("--concurrency", type=int, default=1)
+    run.add_argument("--no-gate", action="store_true")
+    run.add_argument("--mock", action="store_true")
+    run.add_argument("--output")
+    run.add_argument("--format", action="append", choices=("json", "markdown"), dest="formats")
+    run.add_argument("--verbose", action="store_true")
 
     validate = subcommands.add_parser("validate", help="validate config and dataset")
     validate.add_argument("config")
@@ -70,8 +79,20 @@ def _dispatch(args: argparse.Namespace) -> int:
         print(__version__)
         return 0
     if args.command == "run":
-        outcome = run_evaluation(load_config(args.config))
-        _print_run_summary(outcome.report, outcome.report_paths)
+        if args.limit is not None and args.limit < 1:
+            raise Eval42Error("--limit must be at least 1")
+        options = RunOptions(
+            case_ids=tuple(args.case_ids),
+            tags=tuple(args.tags),
+            limit=args.limit,
+            concurrency=args.concurrency,
+            apply_gates=not args.no_gate,
+            require_fixture=args.mock,
+            output_dir=args.output,
+            formats=tuple(args.formats) if args.formats else None,
+        )
+        outcome = run_evaluation(load_config(args.config), options=options)
+        _print_run_summary(outcome.report, outcome.report_paths, verbose=args.verbose)
         return outcome.exit_code
     if args.command == "validate":
         config = load_config(args.config)
@@ -113,7 +134,12 @@ def _dispatch(args: argparse.Namespace) -> int:
     raise Eval42Error("unsupported command")
 
 
-def _print_run_summary(report: dict[str, object], paths: dict[str, Path]) -> None:
+def _print_run_summary(
+    report: dict[str, object],
+    paths: dict[str, Path],
+    *,
+    verbose: bool = False,
+) -> None:
     summary = report["summary"]
     assert isinstance(summary, dict)
     print(
@@ -122,6 +148,12 @@ def _print_run_summary(report: dict[str, object], paths: dict[str, Path]) -> Non
     )
     for format_name, path in paths.items():
         print(f"{format_name}: {path}")
+    if verbose:
+        cases = report["cases"]
+        assert isinstance(cases, list)
+        for case in cases:
+            assert isinstance(case, dict)
+            print(f"{case['case_id']}: {case['status']} {case.get('metrics', {})}")
 
 
 if __name__ == "__main__":

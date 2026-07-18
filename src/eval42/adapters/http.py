@@ -36,6 +36,10 @@ class HttpAdapter(Adapter):
         self.timeout = float(config.get("timeout_seconds", 60))
         self._fixture_responses = self._load_fixtures(config.get("fixture_path"))
 
+    @property
+    def uses_fixtures(self) -> bool:
+        return self._fixture_responses is not None
+
     def _load_fixtures(self, fixture_path: Any) -> dict[str, Any] | None:
         if fixture_path is None:
             return None

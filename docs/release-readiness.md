@@ -14,7 +14,7 @@ Last audited: 2026-07-18 (Asia/Shanghai)
 | Baselines and dataset comparability | baseline round-trip/change tests | Passed |
 | Stable gate exit behavior | quality and untrusted runner tests | Passed |
 | JSON and Markdown reports | schema validation and reporter tests | Passed |
-| Ruff, strict typing, coverage | Ruff, strict mypy, 28 tests, 90% total coverage | Passed locally |
+| Ruff, strict typing, coverage | Ruff, strict mypy, 29 tests, 90% total coverage | Passed locally |
 | Package artifacts | sdist and wheel built with Hatch | Passed locally |
 | Bundled Schema consistency | wheel inspection and release validator | Passed |
 | PyPI name availability | official PyPI/TestPyPI simple endpoints returned 404 | Available when checked |
