@@ -15,7 +15,7 @@ that candidate labels have completed human review or that live nightly evaluatio
 | Phase 2 baselines and CI gates | Implemented and merged | Live baseline, deployment, and secrets are not configured |
 | Phase 3 GroundedSeek integration | Implemented and merged | 15 candidate labels require owner review |
 | Phase 4 Core boundary confirmation | Technical boundary captured in a clean-room alpha | Real usage history and reviewed target data remain open |
-| Phase 6 standalone package | Implemented and merged in Eval42 PR [#5](https://github.com/yuyukosama2004/eval42/pull/5) | MIT selected; target review and package-index gates remain open |
+| Phase 6 standalone package | Implemented in PR [#5](https://github.com/yuyukosama2004/eval42/pull/5) and published as [v0.1.0a1](https://github.com/yuyukosama2004/eval42/releases/tag/v0.1.0a1) | MIT selected; target review and package-index gates remain open |
 
 ## PhoneMall evidence
 

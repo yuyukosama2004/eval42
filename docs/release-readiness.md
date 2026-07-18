@@ -17,23 +17,27 @@ Last audited: 2026-07-18 (Asia/Shanghai)
 | Ruff, strict typing, coverage | Ruff, strict mypy, 35 tests, 89.73% total coverage | Passed locally and remotely |
 | Dependency vulnerability audit | `pip-audit`; editable local package excluded, all resolved dependencies audited | Passed locally and enforced in CI/release |
 | License and fixture redistribution | Owner-selected MIT; repository-authored synthetic fixtures included | Passed |
-| Package artifacts | sdist and wheel built with Hatch | Passed locally |
+| Package artifacts | sdist and wheel rebuilt from tagged commit by GitHub Actions | Passed |
 | Bundled Schema consistency | wheel inspection and release validator | Passed |
+| Release-asset install | Downloaded wheel installed with pipx; offline shopping example passed 3/3 | Passed |
 | PyPI name availability | official PyPI/TestPyPI simple endpoints returned 404 | Available when checked |
 
-Artifact hashes from the initial local package build are build evidence only; the GitHub Release
-workflow rebuilds artifacts from the tagged commit and publishes those authoritative files.
+Authoritative [v0.1.0a1 release](https://github.com/yuyukosama2004/eval42/releases/tag/v0.1.0a1)
+asset hashes:
+
+- wheel: `sha256:136fb831dbf44272a54062436b2eef905cecbebd198d4c3a0f3275ad9a55f92d`
+- sdist: `sha256:24cf1384cbf57100532f86a6f9c888ed07fbb80c44f069a23816446013ad18b5`
 
 ## Remote evidence
 
 | Requirement | Evidence | Status |
 |---|---|---|
-| Linux Python 3.11, 3.12, 3.14 | [main CI run 29642996648](https://github.com/yuyukosama2004/eval42/actions/runs/29642996648) | Passed |
-| Windows Python 3.13 | [main CI run 29642996648](https://github.com/yuyukosama2004/eval42/actions/runs/29642996648) | Passed |
-| macOS Python 3.13 | [main CI run 29642996648](https://github.com/yuyukosama2004/eval42/actions/runs/29642996648) | Passed |
-| Quality, contracts, and clean build/install | [main CI run 29642996648](https://github.com/yuyukosama2004/eval42/actions/runs/29642996648) | Passed |
-| Development-plan validation | [Documentation run 29642996665](https://github.com/yuyukosama2004/eval42/actions/runs/29642996665) | Passed |
-| Tag-triggered GitHub prerelease with sdist/wheel | Release workflow configured for `v*` tags | Pending tag |
+| Linux Python 3.11, 3.12, 3.14 | [main CI run 29644115314](https://github.com/yuyukosama2004/eval42/actions/runs/29644115314) | Passed |
+| Windows Python 3.13 | [main CI run 29644115314](https://github.com/yuyukosama2004/eval42/actions/runs/29644115314) | Passed |
+| macOS Python 3.13 | [main CI run 29644115314](https://github.com/yuyukosama2004/eval42/actions/runs/29644115314) | Passed |
+| Quality, security audit, contracts, and clean build/install | [main CI run 29644115314](https://github.com/yuyukosama2004/eval42/actions/runs/29644115314) | Passed |
+| Development-plan validation | [Documentation run 29644115320](https://github.com/yuyukosama2004/eval42/actions/runs/29644115320) | Passed |
+| Tag-triggered GitHub prerelease with sdist/wheel | [Release run 29644174857](https://github.com/yuyukosama2004/eval42/actions/runs/29644174857) | Passed |
 
 ## External acceptance still open
 
