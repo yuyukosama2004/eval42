@@ -163,6 +163,7 @@ def run_evaluation(
             "retryable_error_rate": retryable_errors / len(case_reports),
             "estimated_cost": total_cost if total_cost else None,
             "cost_kind": _cost_kind(case_reports),
+            "token_count_kind": _token_count_kind(case_reports),
         },
         "gates": [result.to_dict() for result in gate_results],
         "cases": case_reports,
@@ -299,12 +300,23 @@ def _baseline_metrics(config: LoadedConfig) -> dict[str, float] | None:
 
 
 def _cost_kind(cases: list[JsonObject]) -> str:
+    completed = [case for case in cases if case["status"] == "completed"]
+    if not completed or any(
+        case.get("metrics", {}).get("estimated_cost") is None for case in completed
+    ):
+        return "unavailable"
+    return "actual" if _token_count_kind(completed) == "actual" else "estimated"
+
+
+def _token_count_kind(cases: list[JsonObject]) -> str:
     kinds = {
         case.get("usage", {}).get("token_count_kind", "unavailable")
         for case in cases
         if case["status"] == "completed"
     }
     if not kinds or kinds == {"unavailable"}:
+        return "unavailable"
+    if "unavailable" in kinds:
         return "unavailable"
     if kinds == {"actual"}:
         return "actual"

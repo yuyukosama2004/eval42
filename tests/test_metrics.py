@@ -68,7 +68,7 @@ def test_research_metrics(eval_case: EvalCase, case_result: CaseResult) -> None:
     case_result.system["outcome"] = "report_conflict"
     values = default_registry().evaluate(
         [
-            {"type": "source_quality"},
+            {"type": "source_quality", "domain_tiers": {"example.gov": 3}},
             {"type": "evidence_recall"},
             {"type": "citation_validity"},
             {"type": "expected_outcome"},
@@ -77,7 +77,8 @@ def test_research_metrics(eval_case: EvalCase, case_result: CaseResult) -> None:
         research_case,
         case_result,
     )
-    assert all(value == 1 for value in values.values())
+    assert values["source_quality"] == 3
+    assert all(value == 1 for name, value in values.items() if name != "source_quality")
 
 
 def test_unknown_metric_and_registry(eval_case: EvalCase, case_result: CaseResult) -> None:
@@ -94,7 +95,14 @@ def test_aggregate_percentiles_and_cost() -> None:
     summary = aggregate_metrics(
         [
             {"score": 0.5, "total_latency_ms": 100, "estimated_cost": 0.1},
-            {"score": 1.0, "total_latency_ms": 200, "estimated_cost": 0.2},
+            {
+                "score": 1.0,
+                "total_latency_ms": 200,
+                "estimated_cost": 0.2,
+                "input_tokens": 10,
+                "output_tokens": 5,
+                "total_tokens": 15,
+            },
             {"score": None, "total_latency_ms": 300, "estimated_cost": None},
         ]
     )
@@ -103,6 +111,7 @@ def test_aggregate_percentiles_and_cost() -> None:
     assert summary["p95_total_latency_ms"] == pytest.approx(290)
     assert summary["max_total_latency_ms"] == 300
     assert summary["total_cost"] == pytest.approx(0.3)
+    assert summary["sum_total_tokens"] == 15
     assert metric_applicability(
         [{"score": 1.0, "optional": None}, {"score": 0.5, "optional": 1.0}]
     ) == {
@@ -157,4 +166,30 @@ def test_unexpected_empty_result_is_not_zero_forbidden_rate(
         "forbidden_item_rate": None,
         "constraint_pass_rate": None,
         "unexpected_empty_result": 1.0,
+    }
+
+
+def test_cost_can_use_configured_token_prices(
+    eval_case: EvalCase,
+    case_result: CaseResult,
+) -> None:
+    case_result.usage["estimated_cost"] = None
+    case_result.usage["input_tokens"] = 1_000_000
+    case_result.usage["output_tokens"] = 500_000
+    values = default_registry().evaluate(
+        [
+            {
+                "type": "cost",
+                "input_cost_per_million": 2,
+                "output_cost_per_million": 4,
+            }
+        ],
+        eval_case,
+        case_result,
+    )
+    assert values == {
+        "input_tokens": 1_000_000,
+        "output_tokens": 500_000,
+        "total_tokens": 1_500_000,
+        "estimated_cost": 4,
     }

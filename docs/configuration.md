@@ -16,6 +16,11 @@ Every config is YAML whose parsed form validates against
 
 Optional `baseline` and `run_budget` sections enable regression gates and hard execution budgets.
 
+Metric configuration remains deterministic. For example, cost may supply
+`input_cost_per_million` and `output_cost_per_million`, while source quality may supply a
+project-owned `domain_tiers` mapping from domain to numeric tier. Eval42 does not contain a global
+list of authoritative domains.
+
 ## Mapping syntax
 
 Eval42 supports root `$` and dot-separated object/list paths:

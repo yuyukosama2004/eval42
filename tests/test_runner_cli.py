@@ -64,11 +64,14 @@ def test_end_to_end_examples() -> None:
     )
     assert shopping.exit_code == 0
     assert shopping.report["summary"]["gate"] == "pass"
+    assert shopping.report["summary"]["cost_kind"] == "unavailable"
+    assert shopping.report["summary"]["token_count_kind"] == "unavailable"
     assert (
         shopping.report["summary"]["metric_applicability"]["recall_at_3"]["applicable_cases"] == 2
     )
     assert "diagnostics" in shopping.report["cases"][0]
     assert research.report["summary"]["metrics"]["conflict_preservation"] == 1
+    assert research.report["summary"]["metrics"]["source_quality"] == 3
 
 
 def test_quality_failure() -> None:

@@ -27,6 +27,9 @@ execution_policy:
   max_retryable_error_rate: 0.0
 metrics:
   - type: source_quality
+    domain_tiers:
+      python.org: 3
+      example.gov: 3
   - type: evidence_recall
   - type: citation_validity
   - type: claim_coverage
@@ -34,6 +37,8 @@ metrics:
   - type: conflict_preservation
   - type: latency
 gates:
+  - metric: source_quality
+    min: 3
   - metric: accepted_source_rate
     min: 1.0
   - metric: evidence_recall

@@ -276,30 +276,70 @@ def _latency(
 
 
 def _cost(
-    _config: JsonObject,
+    config: JsonObject,
     _case: EvalCase,
     result: CaseResult,
 ) -> dict[str, float | None]:
-    value = result.usage.get("estimated_cost")
-    return {"estimated_cost": float(value) if isinstance(value, (int, float)) else None}
+    input_tokens = result.usage.get("input_tokens")
+    output_tokens = result.usage.get("output_tokens")
+    input_value = (
+        float(input_tokens)
+        if isinstance(input_tokens, int) and not isinstance(input_tokens, bool)
+        else None
+    )
+    output_value = (
+        float(output_tokens)
+        if isinstance(output_tokens, int) and not isinstance(output_tokens, bool)
+        else None
+    )
+    total_tokens = (
+        input_value + output_value if input_value is not None and output_value is not None else None
+    )
+    cost = result.usage.get("estimated_cost")
+    cost_value = float(cost) if isinstance(cost, (int, float)) else None
+    if (
+        cost_value is None
+        and input_value is not None
+        and output_value is not None
+        and isinstance(config.get("input_cost_per_million"), (int, float))
+        and isinstance(config.get("output_cost_per_million"), (int, float))
+    ):
+        cost_value = (
+            input_value * float(config["input_cost_per_million"])
+            + output_value * float(config["output_cost_per_million"])
+        ) / 1_000_000
+    return {
+        "input_tokens": input_value,
+        "output_tokens": output_value,
+        "total_tokens": total_tokens,
+        "estimated_cost": cost_value,
+    }
 
 
 def _source_quality(
-    _config: JsonObject,
+    config: JsonObject,
     case: EvalCase,
     result: CaseResult,
 ) -> dict[str, float | None]:
     accepted = set(case.expected.get("accepted_domains", []))
-    if not accepted:
-        return {"accepted_source_rate": None}
     domains = [_domain(citation) for citation in result.citations]
     present = [domain for domain in domains if domain]
     value = (
-        0.0
-        if not present
-        else sum(_accepted(domain, accepted) for domain in present) / len(present)
+        None
+        if not accepted
+        else (
+            0.0
+            if not present
+            else sum(_accepted(domain, accepted) for domain in present) / len(present)
+        )
     )
-    return {"accepted_source_rate": value}
+    values: dict[str, float | None] = {"accepted_source_rate": value}
+    tiers = config.get("domain_tiers")
+    if isinstance(tiers, dict):
+        source_tiers = [_domain_tier(domain, tiers) for domain in present]
+        known_tiers = [tier for tier in source_tiers if tier is not None]
+        values["source_quality"] = sum(known_tiers) / len(known_tiers) if known_tiers else None
+    return values
 
 
 def _domain(citation: JsonObject) -> str:
@@ -309,6 +349,16 @@ def _domain(citation: JsonObject) -> str:
 
 def _accepted(domain: str, accepted: set[str]) -> bool:
     return any(domain == item or domain.endswith(f".{item}") for item in accepted)
+
+
+def _domain_tier(domain: str, tiers: JsonObject) -> float | None:
+    matches = [
+        float(value)
+        for configured_domain, value in tiers.items()
+        if isinstance(value, (int, float))
+        and (domain == configured_domain or domain.endswith(f".{configured_domain}"))
+    ]
+    return max(matches) if matches else None
 
 
 def _evidence_recall(
@@ -417,6 +467,10 @@ def aggregate_metrics(case_metrics: Iterable[dict[str, float | None]]) -> dict[s
     if "estimated_cost" in grouped:
         summary["average_cost"] = sum(grouped["estimated_cost"]) / len(grouped["estimated_cost"])
         summary["total_cost"] = sum(grouped["estimated_cost"])
+    for name in ("input_tokens", "output_tokens", "total_tokens"):
+        if name in grouped:
+            summary[f"average_{name}"] = sum(grouped[name]) / len(grouped[name])
+            summary[f"sum_{name}"] = sum(grouped[name])
     return summary
 
 
