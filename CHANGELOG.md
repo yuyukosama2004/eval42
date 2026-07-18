@@ -17,6 +17,8 @@
 - Added metric implementation fingerprints and explicit cost provenance for model, currency,
   price version, and calculation method.
 - Verified the standalone alpha on Linux, Windows, macOS, and Python 3.11 through 3.14.
+- Added dependency vulnerability audits to pull-request and tag-release gates, and moved the test
+  suite to the patched pytest 9 line after detecting `PYSEC-2026-1845` in pytest 8.4.2.
 - Added Quick Start, Adapter, configuration, architecture, compatibility, security, and
   contribution documentation.
 - Recorded merged PhoneMall Phase 1–2 and GroundedSeek Phase 3 implementation evidence.
