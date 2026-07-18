@@ -182,6 +182,8 @@ def test_cost_can_use_configured_token_prices(
                 "type": "cost",
                 "input_cost_per_million": 2,
                 "output_cost_per_million": 4,
+                "currency": "USD",
+                "price_version": "2026-07-18",
             }
         ],
         eval_case,
@@ -193,3 +195,21 @@ def test_cost_can_use_configured_token_prices(
         "total_tokens": 1_500_000,
         "estimated_cost": 4,
     }
+
+
+def test_cost_rates_require_complete_provenance(
+    eval_case: EvalCase,
+    case_result: CaseResult,
+) -> None:
+    with pytest.raises(ConfigError, match="currency and price_version"):
+        default_registry().evaluate(
+            [
+                {
+                    "type": "cost",
+                    "input_cost_per_million": 2,
+                    "output_cost_per_million": 4,
+                }
+            ],
+            eval_case,
+            case_result,
+        )

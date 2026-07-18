@@ -72,6 +72,10 @@
           "type": "string",
           "pattern": "^sha256:[0-9a-f]{64}$"
         },
+        "metric_version": {
+          "type": "string",
+          "minLength": 1
+        },
         "environment": {
           "type": "string",
           "minLength": 1

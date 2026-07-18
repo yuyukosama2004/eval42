@@ -29,11 +29,14 @@ def _report() -> dict[str, object]:
 def test_baseline_round_trip_and_compare(tmp_path: Path) -> None:
     report = _report()
     baseline = baseline_from_report(report)
+    assert baseline["run_fingerprint"]["eval42_version"] == "0.1.0a1"
+    assert baseline["run_fingerprint"]["metric_version"] == "1"
     path = write_baseline(baseline, tmp_path / "baseline.json")
     loaded = load_baseline(path)
     comparison = compare_report_to_baseline(report, loaded)
     assert comparison["dataset_changed"] is False
     assert comparison["comparable_case_count"] == 3
+    assert comparison["fingerprint_changed"] == []
     assert not comparison["new_errors"]
     changed = copy.deepcopy(report)
     changed["run"]["dataset_hash"] = f"sha256:{'f' * 64}"

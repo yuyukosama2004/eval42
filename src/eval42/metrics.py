@@ -12,6 +12,7 @@ from eval42.models import CaseResult, EvalCase, JsonObject
 from eval42.util import percentile
 
 MetricFunction = Callable[[JsonObject, EvalCase, CaseResult], dict[str, float | None]]
+METRIC_IMPLEMENTATION_VERSION = "1"
 
 
 class MetricRegistry:
@@ -280,6 +281,28 @@ def _cost(
     _case: EvalCase,
     result: CaseResult,
 ) -> dict[str, float | None]:
+    rate_keys = ("input_cost_per_million", "output_cost_per_million")
+    configured_rates = [config.get(key) for key in rate_keys]
+    has_any_rate = any(value is not None for value in configured_rates)
+    has_valid_rates = all(
+        isinstance(value, (int, float)) and not isinstance(value, bool)
+        for value in configured_rates
+    )
+    if has_any_rate and not has_valid_rates:
+        raise ConfigError(
+            "cost metric requires numeric input_cost_per_million and "
+            "output_cost_per_million together"
+        )
+    if has_valid_rates and (
+        not isinstance(config.get("currency"), str)
+        or not config["currency"]
+        or not isinstance(config.get("price_version"), str)
+        or not config["price_version"]
+    ):
+        raise ConfigError(
+            "cost metric with configured token rates requires currency and price_version"
+        )
+
     input_tokens = result.usage.get("input_tokens")
     output_tokens = result.usage.get("output_tokens")
     input_value = (
@@ -301,8 +324,7 @@ def _cost(
         cost_value is None
         and input_value is not None
         and output_value is not None
-        and isinstance(config.get("input_cost_per_million"), (int, float))
-        and isinstance(config.get("output_cost_per_million"), (int, float))
+        and has_valid_rates
     ):
         cost_value = (
             input_value * float(config["input_cost_per_million"])

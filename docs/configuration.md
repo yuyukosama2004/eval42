@@ -17,9 +17,13 @@ Every config is YAML whose parsed form validates against
 Optional `baseline` and `run_budget` sections enable regression gates and hard execution budgets.
 
 Metric configuration remains deterministic. For example, cost may supply
-`input_cost_per_million` and `output_cost_per_million`, while source quality may supply a
-project-owned `domain_tiers` mapping from domain to numeric tier. Eval42 does not contain a global
-list of authoritative domains.
+`input_cost_per_million` and `output_cost_per_million`. Configured rates must also declare
+`currency` and `price_version`; reports record those values, the evaluated model names, and whether
+cost came from configured token rates or the adapter. Adapter-reported costs should provide
+`currency`, `price_version`, and `cost_method` in usage data.
+
+Source quality may supply a project-owned `domain_tiers` mapping from domain to numeric tier.
+Eval42 does not contain a global list of authoritative domains.
 
 ## Mapping syntax
 

@@ -66,6 +66,16 @@ def test_end_to_end_examples() -> None:
     assert shopping.report["summary"]["gate"] == "pass"
     assert shopping.report["summary"]["cost_kind"] == "unavailable"
     assert shopping.report["summary"]["token_count_kind"] == "unavailable"
+    assert shopping.report["run"]["eval42_version"] == "0.1.0a1"
+    assert shopping.report["run"]["metric_version"] == "1"
+    assert shopping.report["summary"]["cost_provenance"] == {
+        "method": "fixture",
+        "currency": "CNY",
+        "price_version": "fixture-v1",
+        "models": ["fixture"],
+        "input_cost_per_million": None,
+        "output_cost_per_million": None,
+    }
     assert (
         shopping.report["summary"]["metric_applicability"]["recall_at_3"]["applicable_cases"] == 2
     )

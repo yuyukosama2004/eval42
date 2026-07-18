@@ -10,6 +10,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from eval42._version import __version__
 from eval42.adapters.base import Adapter
 from eval42.adapters.http import HttpAdapter
 from eval42.baseline import load_baseline
@@ -18,6 +19,7 @@ from eval42.errors import AdapterError, ConfigError
 from eval42.gates import evaluate_gates, gate_summary
 from eval42.loader import dataset_hash, load_dataset
 from eval42.metrics import (
+    METRIC_IMPLEMENTATION_VERSION,
     MetricRegistry,
     aggregate_metrics,
     case_diagnostics,
@@ -86,6 +88,7 @@ def run_evaluation(
     case_reports: list[JsonObject] = []
     retryable_errors = 0
     total_cost = 0.0
+    cost_observed = False
 
     for offset in range(0, len(cases), run_options.concurrency):
         batch = cases[offset : offset + run_options.concurrency]
@@ -108,10 +111,11 @@ def run_evaluation(
         for case, result in zip(batch, results, strict=True):
             if result.error and result.error.get("retryable"):
                 retryable_errors += 1
-            estimated_cost = result.usage.get("estimated_cost")
-            if isinstance(estimated_cost, (int, float)):
-                total_cost += float(estimated_cost)
             values = registry.evaluate(data["metrics"], case, result)
+            estimated_cost = values.get("estimated_cost", result.usage.get("estimated_cost"))
+            if isinstance(estimated_cost, (int, float)):
+                cost_observed = True
+                total_cost += float(estimated_cost)
             case_reports.append(_case_report(case, result, values, data["report"]))
 
     completed = sum(case["status"] == "completed" for case in case_reports)
@@ -150,7 +154,9 @@ def run_evaluation(
             "completed_at": completed_at.isoformat(),
             "config_hash": config.config_hash,
             "metric_hash": sha256_value(data["metrics"]),
+            "metric_version": METRIC_IMPLEMENTATION_VERSION,
             "adapter_version": target_adapter.version,
+            "eval42_version": __version__,
             "environment": platform.platform(),
         },
         "summary": {
@@ -161,9 +167,10 @@ def run_evaluation(
             "metrics": aggregate,
             "metric_applicability": applicability,
             "retryable_error_rate": retryable_errors / len(case_reports),
-            "estimated_cost": total_cost if total_cost else None,
+            "estimated_cost": total_cost if cost_observed else None,
             "cost_kind": _cost_kind(case_reports),
             "token_count_kind": _token_count_kind(case_reports),
+            "cost_provenance": _cost_provenance(data["metrics"], case_reports),
         },
         "gates": [result.to_dict() for result in gate_results],
         "cases": case_reports,
@@ -321,3 +328,71 @@ def _token_count_kind(cases: list[JsonObject]) -> str:
     if kinds == {"actual"}:
         return "actual"
     return "estimated"
+
+
+def _cost_provenance(
+    metric_configs: list[JsonObject],
+    cases: list[JsonObject],
+) -> JsonObject | None:
+    config = next(
+        (metric for metric in metric_configs if metric.get("type") == "cost"),
+        None,
+    )
+    if config is None:
+        return None
+
+    completed = [case for case in cases if case["status"] == "completed"]
+    usage = [case.get("usage", {}) for case in completed]
+    currencies = {
+        str(item["currency"])
+        for item in usage
+        if isinstance(item.get("currency"), str) and item["currency"]
+    }
+    price_versions = {
+        str(item["price_version"])
+        for item in usage
+        if isinstance(item.get("price_version"), str) and item["price_version"]
+    }
+    methods = {
+        str(item["cost_method"])
+        for item in usage
+        if isinstance(item.get("cost_method"), str) and item["cost_method"]
+    }
+    models = sorted(
+        {
+            str(case["system"]["model"])
+            for case in completed
+            if isinstance(case.get("system"), dict)
+            and isinstance(case["system"].get("model"), str)
+            and case["system"]["model"]
+        }
+    )
+    rate_keys = ("input_cost_per_million", "output_cost_per_million")
+    configured_rates = all(
+        isinstance(config.get(key), (int, float)) and not isinstance(config.get(key), bool)
+        for key in rate_keys
+    )
+    has_reported_cost = any(
+        isinstance(case.get("metrics", {}).get("estimated_cost"), (int, float))
+        for case in completed
+    )
+    return {
+        "method": (
+            "configured_token_rates"
+            if configured_rates
+            else _single_or(methods, "adapter_reported" if has_reported_cost else "unavailable")
+        ),
+        "currency": config.get("currency") or _single_or(currencies, "unavailable"),
+        "price_version": config.get("price_version") or _single_or(price_versions, "unavailable"),
+        "models": models,
+        "input_cost_per_million": config.get("input_cost_per_million"),
+        "output_cost_per_million": config.get("output_cost_per_million"),
+    }
+
+
+def _single_or(values: set[str], fallback: str) -> str:
+    if not values:
+        return fallback
+    if len(values) == 1:
+        return next(iter(values))
+    return "mixed"

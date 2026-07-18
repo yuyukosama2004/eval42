@@ -77,3 +77,15 @@ def test_secret_header_does_not_change_public_config_hash(
     second = load_config(path)
     assert first.data["adapter"]["headers"] != second.data["adapter"]["headers"]
     assert first.config_hash == second.config_hash
+
+
+def test_configured_cost_rates_require_provenance(tmp_path: Path) -> None:
+    source = (ROOT / "examples/mock-shopping/eval.yml").read_text(encoding="utf-8")
+    source = source.replace(
+        "  - type: cost",
+        "  - type: cost\n    input_cost_per_million: 2\n    output_cost_per_million: 4",
+    )
+    path = tmp_path / "eval.yml"
+    path.write_text(source, encoding="utf-8")
+    with pytest.raises(ConfigError, match="schema error"):
+        load_config(path)

@@ -28,9 +28,10 @@ def baseline_from_report(report: dict[str, Any]) -> dict[str, Any]:
         "run_fingerprint": {
             "target_revision": run["revision"],
             "adapter_version": run.get("adapter_version", "1"),
-            "eval42_version": __version__,
+            "eval42_version": run.get("eval42_version", __version__),
             "config_hash": run["config_hash"],
             "metric_hash": run["metric_hash"],
+            "metric_version": run.get("metric_version", "unknown"),
             "environment": run.get("environment", platform.platform()),
         },
         "summary": report["summary"],
@@ -140,8 +141,14 @@ def _fingerprint_changes(
     fingerprint = baseline["run_fingerprint"]
     pairs = {
         "target_revision": (run["revision"], fingerprint["target_revision"]),
+        "adapter_version": (run.get("adapter_version"), fingerprint["adapter_version"]),
+        "eval42_version": (run.get("eval42_version"), fingerprint["eval42_version"]),
         "config_hash": (run["config_hash"], fingerprint["config_hash"]),
         "metric_hash": (run["metric_hash"], fingerprint["metric_hash"]),
+        "metric_version": (
+            run.get("metric_version"),
+            fingerprint.get("metric_version"),
+        ),
         "environment": (run.get("environment"), fingerprint["environment"]),
     }
     return [name for name, (current, previous) in pairs.items() if current != previous]

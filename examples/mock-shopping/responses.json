@@ -23,7 +23,9 @@
         "output_tokens": 30,
         "token_count_kind": "actual",
         "estimated_cost": 0.001,
-        "currency": "CNY"
+        "currency": "CNY",
+        "price_version": "fixture-v1",
+        "cost_method": "fixture"
       },
       "versions": {"model": "fixture", "retrieval_mode": "fixture", "index_ready": true}
     },
@@ -46,7 +48,7 @@
       "recommended_ids": [26],
       "answer": "商品26符合实际约束。",
       "claims": [{"subject_id": 26, "field": "price", "value": 2799}],
-      "usage": {"total_latency_ms": 95, "token_count_kind": "estimated", "estimated_cost": 0.0008, "currency": "CNY"},
+      "usage": {"total_latency_ms": 95, "token_count_kind": "estimated", "estimated_cost": 0.0008, "currency": "CNY", "price_version": "fixture-v1", "cost_method": "fixture"},
       "versions": {"model": "fixture", "retrieval_mode": "fixture", "index_ready": true}
     }
   }

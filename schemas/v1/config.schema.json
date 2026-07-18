@@ -188,8 +188,46 @@
           "type": {
             "type": "string",
             "minLength": 1
+          },
+          "input_cost_per_million": {
+            "type": "number",
+            "minimum": 0
+          },
+          "output_cost_per_million": {
+            "type": "number",
+            "minimum": 0
+          },
+          "currency": {
+            "type": "string",
+            "minLength": 1
+          },
+          "price_version": {
+            "type": "string",
+            "minLength": 1
           }
-        }
+        },
+        "allOf": [
+          {
+            "if": {
+              "anyOf": [
+                {
+                  "required": ["input_cost_per_million"]
+                },
+                {
+                  "required": ["output_cost_per_million"]
+                }
+              ]
+            },
+            "then": {
+              "required": [
+                "input_cost_per_million",
+                "output_cost_per_million",
+                "currency",
+                "price_version"
+              ]
+            }
+          }
+        ]
       }
     },
     "gates": {
