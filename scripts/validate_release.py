@@ -61,11 +61,24 @@ def validate_no_private_paths() -> None:
             assert not pattern.search(text), f"private local path in {path.relative_to(ROOT)}"
 
 
+def validate_security_gate() -> None:
+    project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
+    dev_dependencies = project["optional-dependencies"]["dev"]
+    assert any(dependency.startswith("pip-audit>=") for dependency in dev_dependencies), (
+        "pip-audit is missing from dev dependencies"
+    )
+    command = "python -m pip_audit --skip-editable --progress-spinner off"
+    for name in ("ci.yml", "release.yml"):
+        workflow = (ROOT / ".github" / "workflows" / name).read_text(encoding="utf-8")
+        assert command in workflow, f"dependency audit is missing from {name}"
+
+
 def main() -> None:
     validate_version()
     validate_bundled_schemas()
     validate_offline_examples()
     validate_no_private_paths()
+    validate_security_gate()
     print("release invariants passed")
 
 

@@ -15,6 +15,7 @@ Last audited: 2026-07-18 (Asia/Shanghai)
 | Stable gate exit behavior | quality and untrusted runner tests | Passed |
 | JSON and Markdown reports | schema validation and reporter tests | Passed |
 | Ruff, strict typing, coverage | Ruff, strict mypy, 35 tests, 89.73% total coverage | Passed locally and remotely |
+| Dependency vulnerability audit | `pip-audit`; editable local package excluded, all resolved dependencies audited | Passed locally and enforced in CI/release |
 | Package artifacts | sdist and wheel built with Hatch | Passed locally |
 | Bundled Schema consistency | wheel inspection and release validator | Passed |
 | PyPI name availability | official PyPI/TestPyPI simple endpoints returned 404 | Available when checked |
