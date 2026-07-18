@@ -67,7 +67,7 @@ def load_config(path: str | Path) -> LoadedConfig:
         path=config_path,
         base_dir=config_path.parent,
         data=expanded,
-        config_hash=sha256_value(expanded),
+        config_hash=sha256_value(redact_config(expanded)),
     )
 
 

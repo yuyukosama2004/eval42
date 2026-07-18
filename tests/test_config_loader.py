@@ -58,3 +58,22 @@ def test_redacts_headers() -> None:
     redacted = redact_config(source)
     assert redacted["adapter"]["headers"]["Authorization"] == "***"
     assert source["adapter"]["headers"]["Authorization"] == "secret"
+
+
+def test_secret_header_does_not_change_public_config_hash(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = (ROOT / "examples/mock-shopping/eval.yml").read_text(encoding="utf-8")
+    source = source.replace(
+        "  timeout_seconds: 5",
+        "  timeout_seconds: 5\n  headers:\n    Authorization: Bearer ${TARGET_TOKEN}",
+    )
+    path = tmp_path / "eval.yml"
+    path.write_text(source, encoding="utf-8")
+    monkeypatch.setenv("TARGET_TOKEN", "first-secret")
+    first = load_config(path)
+    monkeypatch.setenv("TARGET_TOKEN", "second-secret")
+    second = load_config(path)
+    assert first.data["adapter"]["headers"] != second.data["adapter"]["headers"]
+    assert first.config_hash == second.config_hash
