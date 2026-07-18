@@ -46,9 +46,11 @@ and Gold Set selection policy.
 
 ## EVAL-007 — License and migration authority
 
-Status: blocked for Phase 6, documented for Phase 0.
+Status: Eval42 decision complete; target-project decisions remain separate.
 
-No license is present. `license-and-data-governance.md` records the required owner decisions.
+The owner selected MIT for Eval42 and authorized redistribution of repository-authored synthetic
+Mock fixtures under the same license. No PhoneMall or GroundedSeek source code was copied.
+`license-and-data-governance.md` records the decision and remaining target boundary.
 
 ## EVAL-008 — Schema v1 drafts
 

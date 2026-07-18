@@ -10,12 +10,12 @@ that candidate labels have completed human review or that live nightly evaluatio
 
 | Plan area | Technical status | Remaining boundary |
 |---|---|---|
-| Phase 0 contracts and audits | Complete | License and migration decision remains open |
+| Phase 0 contracts and audits | Complete | Eval42 uses MIT; target licenses remain separate |
 | Phase 1 PhoneMall retrieval loop | Implemented and merged | 20 candidate labels require owner review |
 | Phase 2 baselines and CI gates | Implemented and merged | Live baseline, deployment, and secrets are not configured |
 | Phase 3 GroundedSeek integration | Implemented and merged | 15 candidate labels require owner review |
 | Phase 4 Core boundary confirmation | Technical boundary captured in a clean-room alpha | Real usage history and reviewed target data remain open |
-| Phase 6 standalone package | Implemented and merged in Eval42 PR [#5](https://github.com/yuyukosama2004/eval42/pull/5) | LICENSE and stable-release gates remain open |
+| Phase 6 standalone package | Implemented and merged in Eval42 PR [#5](https://github.com/yuyukosama2004/eval42/pull/5) | MIT selected; target review and package-index gates remain open |
 
 ## PhoneMall evidence
 
@@ -75,8 +75,8 @@ Open governance:
 
 ## Cross-project blockers
 
-- [Eval42 issue #3](https://github.com/yuyukosama2004/eval42/issues/3) tracks licenses and
-  authorization to migrate code between repositories.
+- [Eval42 issue #3](https://github.com/yuyukosama2004/eval42/issues/3) records the Eval42 MIT and
+  synthetic-fixture redistribution decisions; target-project licenses remain separate.
 - Neither target nightly workflow is enabled. Each requires an explicitly configured protected
   service and repository settings or secrets.
 - Plan v1.2 permits the standalone clean-room alpha before human Gold review because the owner
@@ -92,4 +92,5 @@ Open governance:
 3. A reviewed live baseline is created before PhoneMall nightly is enabled.
 4. GroundedSeek live nightly is enabled only against a protected service with real SearXNG,
    Readers, and Ollama.
-5. License and migration authorization is recorded before common code moves into Eval42.
+5. Any future target code migration receives a separate provenance and license compatibility
+   review; the current standalone Core contains no migrated target code.

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import sys
 import tomllib
@@ -28,6 +29,27 @@ PRIVATE_PATTERNS = (
 def validate_version() -> None:
     project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
     assert project["version"] == __version__, "pyproject and package versions differ"
+
+
+def validate_license() -> None:
+    document = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    project = document["project"]
+    license_text = (ROOT / "LICENSE").read_text(encoding="utf-8")
+    assert project["license"] == "MIT", "project license must be MIT"
+    assert project["license-files"] == ["LICENSE"], "LICENSE must be package metadata"
+    assert "MIT License" in license_text
+    assert "Copyright (c) 2026 yuyukosama2004" in license_text
+    sdist_includes = document["tool"]["hatch"]["build"]["targets"]["sdist"]["include"]
+    assert "/LICENSE" in sdist_includes, "LICENSE must be included in the sdist"
+
+
+def validate_release_tag() -> None:
+    if os.environ.get("GITHUB_REF_TYPE") != "tag":
+        return
+    expected = f"v{__version__}"
+    assert os.environ.get("GITHUB_REF_NAME") == expected, (
+        f"release tag must be {expected}, got {os.environ.get('GITHUB_REF_NAME')!r}"
+    )
 
 
 def validate_bundled_schemas() -> None:
@@ -75,6 +97,8 @@ def validate_security_gate() -> None:
 
 def main() -> None:
     validate_version()
+    validate_license()
+    validate_release_tag()
     validate_bundled_schemas()
     validate_offline_examples()
     validate_no_private_paths()

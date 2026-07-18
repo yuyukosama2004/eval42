@@ -113,7 +113,7 @@ def validate_audit_record() -> None:
 
     required_governance_statements = (
         "pending human annotation",
-        "blocked for Phase 6",
+        "owner selected MIT for Eval42",
         "Phase 0 is not fully closed",
     )
     for statement in required_governance_statements:

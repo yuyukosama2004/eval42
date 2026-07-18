@@ -91,13 +91,15 @@ import or execute arbitrary Python.
 
 - Package version: `0.1.0a1`
 - Contracts: Schema v1
+- License: [MIT](LICENSE)
 - Local verification: Python 3.13, strict mypy, Ruff, and more than 85% test coverage
 - CI target: Python 3.11–3.14 on Linux, plus Windows and macOS
 - Release status: alpha; public package-index publication is not yet claimed
 
-The source repository still requires an owner-selected license before it can truthfully be called
-open source or published as a stable public package. The decision is tracked in
-[license and data governance](docs/phase-0/license-and-data-governance.md).
+Eval42 source, schemas, documentation, and the repository-authored synthetic Mock fixtures are
+published under the MIT License. PhoneMall and GroundedSeek source code was not copied into this
+repository; their licensing and human Gold review remain separate governance concerns documented
+in [license and data governance](docs/phase-0/license-and-data-governance.md).
 
 ## Design boundaries
 

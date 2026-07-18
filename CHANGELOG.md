@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## 0.1.0a1 - 2026-07-18
+
+- Licensed Eval42 and its repository-authored synthetic Mock fixtures under MIT.
 - Added the installable `eval42` alpha package and stable CLI.
 - Added strict YAML configuration, JSONL loading, case hashing, and environment interpolation.
 - Added a generic synchronous and submit/poll/result HTTP Adapter with offline fixture transport.
@@ -22,7 +25,7 @@
 - Added Quick Start, Adapter, configuration, architecture, compatibility, security, and
   contribution documentation.
 - Recorded merged PhoneMall Phase 1–2 and GroundedSeek Phase 3 implementation evidence.
-- Linked target CI runs, prereleases, and the remaining human-review and license blockers.
+- Linked target CI runs, prereleases, and the remaining human-review and package-index blockers.
 - Added Phase 0 repository and GroundedSeek dataset audits.
 - Added the Phase 0 acceptance and license/data-governance records.
 - Added JSON Schema Draft 2020-12 contracts for dataset cases, configuration, normalized case
