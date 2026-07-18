@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Added tokenless OIDC publication from verified GitHub Release assets, with separate protected
+  TestPyPI and PyPI environments and a stable-version production gate.
+- Upgraded GitHub Actions checkout and Python setup to their Node 24-based major versions.
+- Recorded the repository-side publishing milestone and the remaining account, human-review, and
+  live-nightly gates without claiming a package-index release.
+
 ## 0.1.0a1 - 2026-07-18
 
 - Licensed Eval42 and its repository-authored synthetic Mock fixtures under MIT.

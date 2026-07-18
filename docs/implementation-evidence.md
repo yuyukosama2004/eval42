@@ -77,6 +77,9 @@ Open governance:
 
 - [Eval42 issue #3](https://github.com/yuyukosama2004/eval42/issues/3) records the Eval42 MIT and
   synthetic-fixture redistribution decisions; target-project licenses remain separate.
+- [Eval42 issue #13](https://github.com/yuyukosama2004/eval42/issues/13) records the exact
+  account-side Trusted Publisher fields and the TestPyPI verification still required. The
+  repository-side OIDC workflow and protected environments are complete.
 - Neither target nightly workflow is enabled. Each requires an explicitly configured protected
   service and repository settings or secrets.
 - Plan v1.2 permits the standalone clean-room alpha before human Gold review because the owner
