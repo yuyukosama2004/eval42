@@ -7,6 +7,8 @@ name = "eval42"
 version = "0.1.0a1"
 description = "A CI-first evaluation harness for verifiable AI applications"
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.11"
 authors = [
   { name = "yuyukosama2004" },
@@ -64,6 +66,7 @@ include = [
   "/README.md",
   "/CHANGELOG.md",
   "/CONTRIBUTING.md",
+  "/LICENSE",
   "/SECURITY.md",
   "/pyproject.toml",
 ]

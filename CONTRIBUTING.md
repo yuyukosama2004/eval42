@@ -31,5 +31,5 @@ eval42 run examples/mock-research/eval.yml
 - Do not add a plugin framework or LLM hard gate without a reviewed real-consumer requirement.
 - Baselines are updated explicitly and reviewed through a pull request; CI never rewrites them.
 
-The repository owner must finalize the project license before accepting third-party code
-contributions or making a stable open-source release.
+By submitting a contribution, you agree that it may be distributed under the repository's
+[MIT License](LICENSE).
