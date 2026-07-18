@@ -1,0 +1,34 @@
+{
+  "responses": {
+    "python-release": {
+      "sources": [
+        {"source_id": "pep-745", "url": "https://www.python.org/dev/peps/pep-0745/", "rank": 1, "score": 1.0}
+      ],
+      "answer": "The scheduled release date was October 7, 2025.",
+      "claims": [
+        {"subject_id": "python-3.14", "field": "release_date", "value": "2025-10-07"}
+      ],
+      "citations": [
+        {"source_id": "pep-745", "url": "https://www.python.org/dev/peps/pep-0745/", "snippet": "Python 3.14.0 final: October 7, 2025"}
+      ],
+      "usage": {"total_latency_ms": 150, "token_count_kind": "unavailable"},
+      "outcome": "completed",
+      "versions": {"artifact_schema_version": "1", "content_hash": "sha256:fixture"}
+    },
+    "conflicting-estimate": {
+      "sources": [
+        {"source_id": "forecast-a", "url": "https://agency-a.example.gov/forecast", "rank": 1, "score": 0.9},
+        {"source_id": "forecast-b", "url": "https://agency-b.example.gov/forecast", "rank": 2, "score": 0.9}
+      ],
+      "answer": "The forecasts conflict: agency A reports 4.1%, while agency B reports 4.6%.",
+      "claims": [],
+      "citations": [
+        {"source_id": "forecast-a", "url": "https://agency-a.example.gov/forecast", "snippet": "forecast: 4.1%"},
+        {"source_id": "forecast-b", "url": "https://agency-b.example.gov/forecast", "snippet": "forecast: 4.6%"}
+      ],
+      "usage": {"total_latency_ms": 180, "token_count_kind": "unavailable"},
+      "outcome": "report_conflict",
+      "versions": {"artifact_schema_version": "1", "content_hash": "sha256:fixture-conflict"}
+    }
+  }
+}

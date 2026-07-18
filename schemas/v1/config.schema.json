@@ -88,6 +88,71 @@
           "additionalProperties": {
             "type": "string"
           }
+        },
+        "fixture_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "request": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "json": {
+              "type": ["object", "array"]
+            }
+          }
+        },
+        "response_mapping": {
+          "type": "object",
+          "additionalProperties": {
+            "type": ["string", "object", "array", "number", "boolean", "null"]
+          }
+        },
+        "async_run": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status_endpoint"],
+          "properties": {
+            "id_path": {
+              "type": "string",
+              "default": "$.run_id"
+            },
+            "status_endpoint": {
+              "type": "string",
+              "minLength": 1
+            },
+            "status_path": {
+              "type": "string",
+              "default": "$.status"
+            },
+            "success_values": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": ["completed"]
+            },
+            "failure_values": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": ["failed", "cancelled"]
+            },
+            "result_endpoint": {
+              "type": "string",
+              "minLength": 1
+            },
+            "poll_interval_seconds": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "default": 1
+            },
+            "max_wait_seconds": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
         }
       }
     },

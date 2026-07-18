@@ -1,0 +1,48 @@
+schema_version: "1"
+project:
+  name: phonemall
+  revision: replace-with-target-git-sha
+dataset:
+  path: dataset.jsonl
+adapter:
+  type: http
+  base_url: ${PHONEMALL_BASE_URL:-http://localhost:8080}
+  endpoint: /api/merchant/ai/evaluate
+  method: POST
+  headers:
+    Authorization: Bearer ${PHONEMALL_MERCHANT_TOKEN}
+  request:
+    json:
+      query: $.input.query
+      generate_answer: false
+  response_mapping:
+    retrieved_items: $.retrieved_products
+    eligible_items: $.eligible_products
+    recommended_ids: $.recommended_ids
+    answer: $.answer
+    claims: $.claims
+    usage: $.usage
+    system: $.versions
+execution_policy:
+  min_completion_rate: 1.0
+  retries: 1
+  max_retryable_error_rate: 0.0
+metrics:
+  - type: recall_at_k
+    k: 5
+  - type: mrr
+  - type: forbidden_item_rate
+  - type: constraint_pass_rate
+  - type: fact_accuracy
+  - type: latency
+gates:
+  - metric: recall_at_5
+    min: 0.8
+  - metric: forbidden_item_rate
+    max: 0
+  - metric: constraint_pass_rate
+    min: 1
+    scope: every_case
+report:
+  formats: [json, markdown]
+  output_dir: reports

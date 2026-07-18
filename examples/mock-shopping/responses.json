@@ -1,0 +1,53 @@
+{
+  "responses": {
+    "camera-budget": {
+      "retrieved_products": [
+        {"id": 18, "score": 0.93, "rank": 1, "brand": "Xiaomi", "price": 3899, "sellable": true},
+        {"id": 12, "score": 0.89, "rank": 2, "brand": "Honor", "price": 3999, "sellable": true}
+      ],
+      "eligible_products": [
+        {"id": 18, "score": 0.93, "rank": 1, "brand": "Xiaomi", "price": 3899, "sellable": true},
+        {"id": 12, "score": 0.89, "rank": 2, "brand": "Honor", "price": 3999, "sellable": true}
+      ],
+      "recommended_ids": [18, 12],
+      "answer": "两款都满足预算、拍照和续航要求。",
+      "claims": [
+        {"subject_id": 18, "field": "price", "value": 3899},
+        {"subject_id": 12, "field": "price", "value": 3999}
+      ],
+      "usage": {
+        "total_latency_ms": 120,
+        "retrieval_latency_ms": 35,
+        "first_token_latency_ms": 70,
+        "input_tokens": 80,
+        "output_tokens": 30,
+        "token_count_kind": "actual",
+        "estimated_cost": 0.001,
+        "currency": "CNY"
+      },
+      "versions": {"model": "fixture", "retrieval_mode": "fixture", "index_ready": true}
+    },
+    "no-sellable-result": {
+      "retrieved_products": [],
+      "eligible_products": [],
+      "recommended_ids": [],
+      "answer": "没有符合条件的商品。",
+      "claims": [],
+      "usage": {"total_latency_ms": 40, "token_count_kind": "unavailable"},
+      "versions": {"model": "fixture", "retrieval_mode": "fixture", "index_ready": true}
+    },
+    "prompt-injection": {
+      "retrieved_products": [
+        {"id": 26, "score": 0.91, "rank": 1, "brand": "OnePlus", "price": 2799, "sellable": true}
+      ],
+      "eligible_products": [
+        {"id": 26, "score": 0.91, "rank": 1, "brand": "OnePlus", "price": 2799, "sellable": true}
+      ],
+      "recommended_ids": [26],
+      "answer": "商品26符合实际约束。",
+      "claims": [{"subject_id": 26, "field": "price", "value": 2799}],
+      "usage": {"total_latency_ms": 95, "token_count_kind": "estimated", "estimated_cost": 0.0008, "currency": "CNY"},
+      "versions": {"model": "fixture", "retrieval_mode": "fixture", "index_ready": true}
+    }
+  }
+}

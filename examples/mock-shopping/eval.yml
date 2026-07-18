@@ -1,0 +1,66 @@
+schema_version: "1"
+project:
+  name: mock-shopping
+  revision: fixture-v1
+dataset:
+  path: dataset.jsonl
+  include_tags: []
+  exclude_tags: []
+adapter:
+  type: http
+  base_url: https://offline.invalid
+  endpoint: /evaluate
+  method: POST
+  timeout_seconds: 5
+  fixture_path: responses.json
+  request:
+    json:
+      query: $.input.query
+  response_mapping:
+    retrieved_items: $.retrieved_products
+    eligible_items: $.eligible_products
+    recommended_ids: $.recommended_ids
+    answer: $.answer
+    claims: $.claims
+    usage: $.usage
+    system: $.versions
+execution_policy:
+  min_completion_rate: 1.0
+  retries: 1
+  max_retryable_error_rate: 0.0
+metrics:
+  - type: recall_at_k
+    k: 3
+  - type: mrr
+  - type: forbidden_item_rate
+  - type: constraint_pass_rate
+  - type: fact_accuracy
+  - type: claim_coverage
+  - type: nonexistent_recommendation_count
+  - type: unexpected_empty_result
+  - type: latency
+  - type: cost
+gates:
+  - metric: recall_at_3
+    min: 1.0
+  - metric: forbidden_item_rate
+    max: 0.0
+  - metric: constraint_pass_rate
+    min: 1.0
+    scope: every_case
+  - metric: nonexistent_recommendation_count
+    max: 0
+    scope: every_case
+  - metric: unexpected_empty_result
+    max: 0
+    scope: every_case
+  - metric: p95_total_latency_ms
+    max: 5000
+    severity: warning
+report:
+  formats: [json, markdown]
+  output_dir: reports
+  include_inputs: true
+  include_answers: false
+  include_retrieved_content: false
+  include_claims: true

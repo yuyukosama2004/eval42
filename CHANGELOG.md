@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+- Added the installable `eval42` alpha package and stable CLI.
+- Added strict YAML configuration, JSONL loading, case hashing, and environment interpolation.
+- Added a generic synchronous and submit/poll/result HTTP Adapter with offline fixture transport.
+- Added deterministic shopping, fact, source, evidence, citation, conflict, latency, and cost
+  metrics.
+- Added baselines, regression comparison, aggregate/every-case gates, budgets, and stable exit
+  codes.
+- Added JSON and Markdown reporters plus fully offline shopping and research examples.
+- Added PhoneMall and GroundedSeek declarative mapping templates without target runtime
+  dependencies.
+- Added strict typing, Ruff, multi-platform CI, package builds, and a test suite above 85%
+  coverage.
+- Added Quick Start, Adapter, configuration, architecture, compatibility, security, and
+  contribution documentation.
 - Recorded merged PhoneMall Phase 1–2 and GroundedSeek Phase 3 implementation evidence.
 - Linked target CI runs, prereleases, and the remaining human-review and license blockers.
 - Added Phase 0 repository and GroundedSeek dataset audits.

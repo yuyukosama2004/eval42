@@ -26,4 +26,4 @@ jobs:
       - name: Validate Phase 0 contracts
         run: python scripts/validate_phase0.py
       - name: Check whitespace errors
-        run: git diff --check HEAD^ HEAD
+        run: git diff --check origin/main...HEAD
