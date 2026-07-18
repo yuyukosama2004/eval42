@@ -101,7 +101,7 @@ import or execute arbitrary Python.
 - License: [MIT](LICENSE)
 - Local verification: Python 3.13, strict mypy, Ruff, and more than 85% test coverage
 - CI target: Python 3.11–3.14 on Linux, plus Windows and macOS
-- Release status: [v0.1.0a1 GitHub prerelease](https://github.com/yuyukosama2004/eval42/releases/tag/v0.1.0a1); public package-index publication is not yet claimed
+- Release status: [v0.1.0a1 GitHub prerelease](https://github.com/yuyukosama2004/eval42/releases/tag/v0.1.0a1); tokenless TestPyPI/PyPI workflow is prepared, but public package-index publication is not yet claimed
 
 Eval42 source, schemas, documentation, and the repository-authored synthetic Mock fixtures are
 published under the MIT License. PhoneMall and GroundedSeek source code was not copied into this

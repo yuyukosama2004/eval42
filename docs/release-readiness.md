@@ -21,6 +21,7 @@ Last audited: 2026-07-18 (Asia/Shanghai)
 | Bundled Schema consistency | wheel inspection and release validator | Passed |
 | Release-asset install | Downloaded wheel installed with pipx; offline shopping example passed 3/3 | Passed |
 | PyPI name availability | official PyPI/TestPyPI simple endpoints returned 404 | Available when checked |
+| Tokenless package-index workflow | GitHub Release artifact validation, stable-version gate, and separate protected environments | Implemented; account binding pending |
 
 Authoritative [v0.1.0a1 release](https://github.com/yuyukosama2004/eval42/releases/tag/v0.1.0a1)
 asset hashes:
@@ -44,8 +45,10 @@ asset hashes:
 - PhoneMall expansion from 20 pending-review cases to at least 30 human-reviewed Gold cases.
 - GroundedSeek maintainer acceptance of the 15 candidate Gold cases.
 - Reviewed live baselines before either target enables a live/nightly gate.
-- TestPyPI/PyPI credentials or Trusted Publishing configuration and an explicit public upload.
+- PyPI and TestPyPI account-side Trusted Publisher binding, followed by a TestPyPI upload/install.
+- Stable PyPI publication remains gated on the target Gold reviews and reviewed live baselines above.
 
-The alpha GitHub release must not be described as a stable or PyPI release while these items
-remain open. The standalone executable itself does not depend on the target Gold reviews, but the
-full development-plan final checklist does.
+The alpha GitHub release must not be described as a stable or PyPI release while these items remain
+open. The repository-side workflow intentionally accepts the alpha on TestPyPI but rejects it for
+PyPI. The standalone executable itself does not depend on the target Gold reviews, but the full
+development-plan final checklist does.
