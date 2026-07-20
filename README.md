@@ -1,5 +1,7 @@
 # Eval42
 
+> Portfolio case study: [execute42 / Eval42](https://www.execute42.top/en/projects/eval42/)
+
 Eval42 is a standalone, CI-first evaluation tool for verifiable AI applications. It loads
 versioned JSONL cases, calls a target through a declarative HTTP adapter, calculates deterministic
 metrics, compares a reviewed baseline, applies quality gates, and writes JSON and Markdown reports.
